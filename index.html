@@ -463,6 +463,17 @@ textarea#catatan-input{min-height:110px;resize:vertical;line-height:1.55}
 .tile-peach .tile-hint,.tile-red .tile-hint,.tile-jade .tile-hint{max-width:none}
 @media (max-width:700px){.tile-art{height:40%;max-width:none}}
 
+/* kolom tanggal/bulan: seragam di Safari iPad (tidak melebar, teks rata kiri) */
+input[type=date],input[type=month]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;text-align:left;line-height:1.3;font-family:inherit}
+input[type=date]::-webkit-date-and-time-value,input[type=month]::-webkit-date-and-time-value{text-align:left;margin:0;min-height:1.3em}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=month]::-webkit-calendar-picker-indicator{opacity:.6}
+.form-field{min-width:0}
+.modal-body{overflow-x:hidden}
+.modal input[type=date]{width:100%;min-height:46px}
+.ana-filter input[type=date]{width:auto;min-width:150px}
+.earn-top input[type=month]{width:auto}
+#libur-until{width:100%}
+
 </style>
 </head>
 <body>
