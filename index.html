@@ -495,6 +495,36 @@ button.stat-pill:active{transform:scale(.97)}
   .sel-bar{left:50%;width:calc(100vw - 24px);bottom:calc(92px + env(safe-area-inset-bottom))}
 }
 
+/* ===== tahap 1b: kelompok tanggal, ciut/buka, urutan ===== */
+.list-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:2px 0 14px}
+.list-tools .seg button{min-height:38px}
+.date-range{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-range>span{font-size:12px;font-weight:700;color:var(--text-3)}
+.date-range input[type=date]{width:auto;min-width:138px;background:var(--surface-2);border:1.5px solid transparent;border-radius:14px;padding:9px 12px;min-height:42px;color:var(--text)}
+.btn-collapse{padding:9px 15px;border-radius:100px;background:var(--surface-2);color:var(--text);font-weight:700;font-size:12.5px;min-height:40px;border:1px solid var(--line);white-space:nowrap}
+.list-tools>.btn-collapse:last-child{margin-left:auto}
+.grp{cursor:pointer;user-select:none;-webkit-user-select:none}
+.grp.date-group-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.grp.type-subheader{display:flex;align-items:center;gap:8px}
+.grp .chev,.grp-title .chev{display:flex;transition:transform .15s;color:var(--text-3)}
+.grp.collapsed .chev,.grp-title.collapsed .chev{transform:rotate(-90deg)}
+.grow{flex:1}
+.grp-sum{display:inline-flex;gap:10px;align-items:center}
+.sd-item{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--text-2)}
+.sd{width:9px;height:9px;border-radius:3px;display:inline-block}
+.sd.acc{background:var(--st-acc)}.sd.rev{background:var(--st-rev)}.sd.pend{background:var(--st-pend)}.sd.rej{background:var(--st-rej)}
+.today-tag{font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;background:var(--jade-soft);color:var(--jade-deep)}
+.grp-check{width:24px;height:24px;border-radius:7px;border:2px solid var(--line-strong);display:flex;align-items:center;justify-content:center;color:transparent;background:var(--surface);flex:none}
+.grp-check.on{background:var(--jade);border-color:var(--jade);color:var(--on-jade)}
+.grp-check.part{background:var(--jade-soft);border-color:var(--jade);color:var(--jade-deep)}
+.asset-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+.asset-side-top{display:flex;align-items:center;gap:6px}
+.asset-date{font-size:11.5px;color:var(--text-3);font-weight:600}
+.age-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:100px;background:var(--mustard-soft);color:var(--text)}
+.grp-title{display:flex;align-items:center;gap:8px;cursor:pointer}
+.dl-actions{display:flex;gap:8px;align-items:center}
+.daily-assets-header{flex-wrap:wrap}
+
 </style>
 </head>
 <body>
@@ -588,10 +618,10 @@ button.stat-pill:active{transform:scale(.97)}
 <div class="catatan-box card"><div class="catatan-label"><svg class="i" aria-hidden="true"><use href="#i-note"/></svg>Catatan Harian</div>
 <textarea id="catatan-input" placeholder="Tulis catatan hari ini..." oninput="onCatatanInput(this.value)"></textarea></div>
 <button class="btn btn-primary" onclick="openBulkModal()"><svg class="i sm" aria-hidden="true"><use href="#i-plus"/></svg>Bulk Upload Aset</button>
-<div class="daily-assets card">
-<div class="daily-assets-header"><div class="daily-assets-title">Aset Hari Ini (<span id="daily-asset-count">0</span>)</div><button class="btn-clear-assets" onclick="clearAllDailyAssets()"><svg class="i sm" aria-hidden="true"><use href="#i-trash"/></svg>Hapus Semua</button></div>
-<div class="daily-assets-filter" id="daily-assets-filter"></div>
-<div id="daily-asset-list"></div>
+<div class="daily-assets card" id="daily-assets-card">
+<div class="daily-assets-header"><div class="daily-assets-title grp-title" id="dl-title" onclick="toggleDailyCard()"><span class="chev"><svg class="i sm" aria-hidden="true"><use href="#i-chev"/></svg></span>Aset Hari Ini (<span id="daily-asset-count">0</span>)</div><div class="dl-actions"><button class="btn-collapse" id="dl-collapse-btn" onclick="toggleAllGroups('dl')">Ciutkan jenis</button><button class="btn-clear-assets" onclick="clearAllDailyAssets()"><svg class="i sm" aria-hidden="true"><use href="#i-trash"/></svg>Hapus Semua</button></div></div>
+<div id="daily-assets-body"><div class="daily-assets-filter" id="daily-assets-filter"></div>
+<div id="daily-asset-list"></div></div>
 </div>
 <div class="notes-hist" id="notes-hist"></div>
 </div>
@@ -612,6 +642,12 @@ button.stat-pill:active{transform:scale(.97)}
 <button class="btn-csv" onclick="openCSVUpload()"><svg class="i sm" aria-hidden="true"><use href="#i-upload"/></svg>Upload CSV</button>
 </div>
 <div class="stats-bar" id="stats-bar"></div>
+<div class="list-tools" id="up-tools">
+<div class="seg" id="up-group-seg"><button data-g="date" onclick="setUpGroup('date')">Tanggal</button><button data-g="type" onclick="setUpGroup('type')">Jenis</button></div>
+<select class="filter-select" id="up-sort" onchange="setUpSort(this.value)" aria-label="Urutkan"><option value="new">Terbaru</option><option value="old">Terlama</option><option value="az">A-Z</option></select>
+<div class="date-range"><input type="date" id="up-from" onchange="renderUploadLog()" aria-label="Dari tanggal"><span>s/d</span><input type="date" id="up-to" onchange="renderUploadLog()" aria-label="Sampai tanggal"><button class="btn-collapse hide" id="up-range-clear" onclick="clearUpRange()">Hapus tanggal</button></div>
+<button class="btn-collapse" id="up-collapse-btn" onclick="toggleAllGroups('up')">Ciutkan semua</button>
+</div>
 <div id="upload-asset-list" style="display:flex;flex-direction:column;gap:8px"></div>
 <div class="sel-bar" id="sel-bar"><div class="sel-count" id="sel-count">0 dipilih</div><button class="sel-btn" id="sel-all-btn" onclick="selectAllVisible()">Pilih semua tampil</button><button class="sel-btn" onclick="openPaste()">Tempel daftar</button><button class="sel-btn primary" id="sel-edit-btn" onclick="openSelModal()">Ubah</button><button class="sel-btn danger" id="sel-del-btn" onclick="deleteSelected()">Hapus</button><button class="sel-btn" onclick="toggleSelectMode()">Selesai</button></div>
 </div>
@@ -629,7 +665,7 @@ button.stat-pill:active{transform:scale(.97)}
 <div class="earn-box" id="earn-box"><div class="earn-top"><input type="month" id="earn-month" onchange="renderEarnings(true)"><div class="earn-total">Total: $<span id="earn-total">0.00</span></div></div><div id="earn-grid"></div><div class="earn-hist" id="earn-hist"></div></div>
 <div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg></span> Breakdown per Jenis Aset</div>
 <div class="breakdown-grid" id="ana-breakdown"></div>
-<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span> Daftar Aset (terbaru di atas)</div>
+<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span> Daftar Aset (terbaru di atas)<button class="btn-collapse" id="an-collapse-btn" onclick="toggleAllGroups('an')" style="margin-left:auto">Ciutkan semua</button></div>
 <div id="ana-asset-list"></div>
 </div>
 <div class="page" id="page-settings">
@@ -1421,19 +1457,6 @@ function renderPlatformTabs(){
   }).join('');
 }
 function switchPlatform(id){state.activePlatform=id;state.selected.clear();renderUploadLog();}
-function getFilteredAssets(){
-  const search=document.getElementById('search-input').value.toLowerCase();
-  const status=document.getElementById('filter-status').value;
-  return (state.uploadLog[state.activePlatform]||[]).filter(a=>{
-    if(status!=='all'&&a.status!==status)return false;
-    if(search){
-      const mF=a.filename.toLowerCase().includes(search);
-      const mT=(a.title||'').toLowerCase().includes(search);
-      if(!mF&&!mT)return false;
-    }
-    return true;
-  });
-}
 function renderStatsBar(){
   const all=state.uploadLog[state.activePlatform]||[];
   const counts={pending:0,review:0,accepted:0,rejected:0};
@@ -1449,32 +1472,6 @@ function setStatusFilter(s){
   renderUploadLog();
 }
 
-function renderUploadAssets(){
-  const filtered=getFilteredAssets();
-  const container=document.getElementById('upload-asset-list');
-  if(filtered.length===0){
-    const msg=(state.uploadLog[state.activePlatform]||[]).length===0?'Belum ada aset. Klik " Upload CSV" untuk upload.':'Tidak ada aset sesuai filter.';
-    container.innerHTML=`<div class="placeholder" style="padding:40px 20px"><div class="placeholder-icon">${ic('inbox')}</div>${msg}</div>`;
-    return;
-  }
-  const statusLabel={pending:' Pending',review:' Review',accepted:' Accepted',rejected:' Rejected'};
-  const statusOrder={accepted:0,review:1,pending:2,rejected:3};
-  const byType={};
-  filtered.forEach(a=>{const t=a.type||inferType(a.filename);if(!byType[t])byType[t]=[];byType[t].push(a);});
-  let html='';
-  assetTypes.forEach(t=>{
-    if(!byType[t])return;
-    const items=byType[t];
-    items.sort((a,b)=>{const sa=statusOrder[a.status], sb=statusOrder[b.status];if(sa!==sb)return sa-sb;return a.filename.localeCompare(b.filename,undefined,{numeric:true,sensitivity:'base'});});
-    html+=`<div class="type-subheader" style="margin-top:14px">${esc(t)} (${items.length})</div>`;
-    items.forEach(a=>{
-      const idx=state.uploadLog[state.activePlatform].indexOf(a);
-      const isSel=state.selected.has(a);
-      html+=`<div class="asset-row${isSel?' sel':''}" data-aidx="${idx}" onclick="${state.selectMode?'toggleSel('+idx+')':'openStatusModal('+idx+')'}">${state.selectMode?'<span class="sel-check">'+ic('check','sm')+'</span>':''}<div class="asset-info"><div class="asset-filename">${esc(a.filename)}</div><div class="asset-title-sm">${esc(a.title||'(no title)')}</div></div><span class="asset-status ${a.status}">${statusLabel[a.status]}</span></div>`;
-    });
-  });
-  container.innerHTML=html;
-}
 
 // ===================== MODE PILIH & UBAH MASSAL =====================
 function selectedInView(){
@@ -1495,7 +1492,7 @@ function toggleSel(idx){
   renderSelBar();
 }
 function selectAllVisible(){
-  const vis=getFilteredAssets();
+  const vis=getVisibleAssets();
   const all=vis.length>0&&vis.every(a=>state.selected.has(a));
   vis.forEach(a=>{if(all)state.selected.delete(a);else state.selected.add(a);});
   renderUploadLog();
@@ -1509,10 +1506,10 @@ function renderSelBar(){
   document.getElementById('page-upload').classList.toggle('selecting',state.selectMode);
   if(!state.selectMode)return;
   const sel=selectedInView();
-  const vis=getFilteredAssets();
+  const vis=getVisibleAssets();
   const visSel=vis.filter(a=>state.selected.has(a)).length;
   const hidden=sel.length-visSel;
-  document.getElementById('sel-count').textContent=sel.length+' dipilih'+(hidden>0?' (+'+hidden+' di luar filter)':'');
+  document.getElementById('sel-count').textContent=sel.length+' dipilih'+(hidden>0?' (+'+hidden+' tidak tampil)':'');
   const allVis=vis.length>0&&visSel===vis.length;
   document.getElementById('sel-all-btn').textContent=allVis?'Batal pilih tampil':'Pilih semua tampil ('+vis.length+')';
   document.getElementById('sel-edit-btn').disabled=sel.length===0;
@@ -1604,7 +1601,270 @@ function matchPaste(){
   document.getElementById('paste-result').innerHTML='<b>'+found.size+' aset cocok dan terpilih</b> di '+esc(platformName(state.activePlatform))+'.'+(missing.length?'<br>Tidak ditemukan ('+missing.length+'): '+shown:'')+(found.size?'<br>Tutup jendela ini, lalu tekan <b>Ubah</b> di bar bawah.':'');
 }
 
-function renderUploadLog(){renderPlatformTabs();renderStatsBar();renderUploadAssets();renderSelBar();}
+
+// ===================== DAFTAR ASET: KELOMPOK, CIUT/BUKA, URUTAN =====================
+const REVIEW_ALERT_DAYS=7;
+const MON_ID=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const DAY_ID=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+function fmtLongKey(k){const d=new Date(k+'T12:00:00Z');if(isNaN(d.getTime()))return 'Tanggal tidak diketahui';return DAY_ID[d.getUTCDay()]+', '+d.getUTCDate()+' '+MON_ID[d.getUTCMonth()]+' '+d.getUTCFullYear();}
+function fmtShortKey2(k){const p=String(k).split('-');if(p.length!==3||isNaN(+p[1]))return '';const cy=trackerKey().slice(0,4);return (+p[2])+' '+MON_ID[+p[1]-1]+(p[0]!==cy?' '+p[0]:'');}
+function relDay(k){const d=daysBetweenKeys(k,trackerKey());if(d===0)return 'Hari ini';if(d===1)return 'Kemarin';return fmtShortKey2(k);}
+function ageDays(a){const d=daysBetweenKeys(toWIBKey(a.uploadedAt),trackerKey());return Number.isFinite(d)?Math.max(0,d):0;}
+
+// status ciut/buka diingat di browser (tidak ikut backup)
+let COLLAPSE={};
+try{COLLAPSE=JSON.parse(localStorage.getItem('ms_collapse')||'{}')||{};}catch(e){COLLAPSE={};}
+function saveCollapse(){
+  try{
+    const ks=Object.keys(COLLAPSE);
+    if(ks.length>800){ks.slice(0,300).forEach(k=>delete COLLAPSE[k]);}
+    localStorage.setItem('ms_collapse',JSON.stringify(COLLAPSE));
+  }catch(e){}
+}
+function isCollapsed(key,def){return Object.prototype.hasOwnProperty.call(COLLAPSE,key)?!!COLLAPSE[key]:!!def;}
+function setCollapsed(key,v){COLLAPSE[key]=!!v;saveCollapse();}
+const GRPREG={up:[],an:[],dl:[]},GRPKEYS={up:[],an:[],dl:[]};
+let VISIBLE_UP=[];
+function getVisibleAssets(){return VISIBLE_UP;}
+function regGrp(scope,arr){GRPREG[scope].push(arr);return GRPREG[scope].length-1;}
+function rerenderScope(s){if(s==='up')renderUploadLog();else if(s==='an')renderAnaAssetList();else renderDailyAssets();}
+function toggleGrp(el){const k=el.dataset.gk,d=el.dataset.gd==='1';setCollapsed(k,!isCollapsed(k,d));rerenderScope(el.dataset.gs);}
+const GRPPREFIX={up:'',an:'',dl:'dl:'};
+function toggleAllGroups(scope){
+  const keys=GRPKEYS[scope]||[];if(!keys.length)return;
+  const anyOpen=keys.some(g=>!isCollapsed(g.k,g.def));
+  if(anyOpen){
+    keys.forEach(g=>{COLLAPSE[g.k]=true;});
+  }else{
+    // Buka semua: buka juga jenis yang pernah diciutkan di dalam tanggal yang sedang tertutup
+    const pre=GRPPREFIX[scope];
+    Object.keys(COLLAPSE).forEach(k=>{if(pre&&k.indexOf(pre)===0&&k!=='dl:card')COLLAPSE[k]=false;});
+    keys.forEach(g=>{COLLAPSE[g.k]=false;});
+  }
+  saveCollapse();rerenderScope(scope);
+}
+function updateCollapseBtn(scope,btnId,lblClose,lblOpen){
+  const btn=document.getElementById(btnId);if(!btn)return;
+  const keys=GRPKEYS[scope]||[];
+  btn.style.display=keys.length?'':'none';
+  btn.textContent=keys.some(g=>!isCollapsed(g.k,g.def))?lblClose:lblOpen;
+}
+function toggleGrpSel(gid){
+  const arr=GRPREG.up[gid];if(!arr)return;
+  const all=arr.length>0&&arr.every(a=>state.selected.has(a));
+  arr.forEach(a=>{if(all)state.selected.delete(a);else state.selected.add(a);});
+  renderUploadLog();
+}
+function sumChips(items){
+  const c={accepted:0,review:0,pending:0,rejected:0};
+  items.forEach(a=>{if(c[a.status]!==undefined)c[a.status]++;});
+  return [['accepted','acc'],['review','rev'],['pending','pend'],['rejected','rej']].filter(x=>c[x[0]]>0).map(x=>'<span class="sd-item"><i class="sd '+x[1]+'"></i>'+c[x[0]]+'</span>').join('');
+}
+function grpHead(kind,scope,key,def,collapsed,inner,gid){
+  let chk='';
+  if(scope==='up'&&state.selectMode&&gid>=0){
+    const arr=GRPREG.up[gid]||[];const n=arr.filter(a=>state.selected.has(a)).length;
+    const st=n===0?'':(n===arr.length?' on':' part');
+    chk='<span class="grp-check'+st+'" onclick="event.stopPropagation();toggleGrpSel('+gid+')" role="checkbox" aria-label="Pilih seluruh grup">'+ic('check','sm')+'</span>';
+  }
+  return '<div class="grp '+(kind==='date'?'date-group-header':'type-subheader')+(collapsed?' collapsed':'')+'" data-gs="'+scope+'" data-gk="'+esc(key)+'" data-gd="'+(def?1:0)+'" onclick="toggleGrp(this)">'+chk+'<span class="chev">'+ic('chev','sm')+'</span>'+inner+'</div>';
+}
+function sortAssets(arr,sort,byTime){
+  const so={accepted:0,review:1,pending:2,rejected:3};
+  const nm=(a,b)=>a.filename.localeCompare(b.filename,undefined,{numeric:true,sensitivity:'base'});
+  if(sort==='az')return arr.sort(nm);
+  const dir=sort==='old'?1:-1;
+  return arr.sort((a,b)=>{
+    if(byTime){const ta=a.uploadedAt||'',tb=b.uploadedAt||'';if(ta!==tb)return ta<tb?-dir:dir;}
+    const sa=so[a.status],sb=so[b.status];if(sa!==sb)return sa-sb;
+    return nm(a,b);
+  });
+}
+
+// ---- Upload ----
+let UPGROUP='date',UPSORT='new';
+try{const g=localStorage.getItem('ms_upgroup'),s=localStorage.getItem('ms_upsort');if(g==='date'||g==='type')UPGROUP=g;if(s==='new'||s==='old'||s==='az')UPSORT=s;}catch(e){}
+function setUpGroup(g){UPGROUP=g;try{localStorage.setItem('ms_upgroup',g);}catch(e){}renderUploadLog();}
+function setUpSort(s){UPSORT=s;try{localStorage.setItem('ms_upsort',s);}catch(e){}renderUploadLog();}
+function clearUpRange(){document.getElementById('up-from').value='';document.getElementById('up-to').value='';renderUploadLog();}
+function upFilterActive(){return !!(document.getElementById('search-input').value||document.getElementById('filter-status').value!=='all'||document.getElementById('up-from').value||document.getElementById('up-to').value);}
+function renderUpTools(){
+  document.querySelectorAll('#up-group-seg button').forEach(b=>b.classList.toggle('active',b.dataset.g===UPGROUP));
+  document.getElementById('up-sort').value=UPSORT;
+  const has=document.getElementById('up-from').value||document.getElementById('up-to').value;
+  document.getElementById('up-range-clear').classList.toggle('hide',!has);
+  updateCollapseBtn('up','up-collapse-btn','Ciutkan semua','Buka semua');
+}
+function getFilteredAssets(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  const status=document.getElementById('filter-status').value;
+  let from=document.getElementById('up-from').value,to=document.getElementById('up-to').value;
+  if(from&&to&&from>to){const t=from;from=to;to=t;}
+  return (state.uploadLog[state.activePlatform]||[]).filter(a=>{
+    if(status!=='all'&&a.status!==status)return false;
+    if(search){
+      const mF=a.filename.toLowerCase().includes(search);
+      const mT=(a.title||'').toLowerCase().includes(search);
+      if(!mF&&!mT)return false;
+    }
+    if(from||to){const k=toWIBKey(a.uploadedAt);if(from&&k<from)return false;if(to&&k>to)return false;}
+    return true;
+  });
+}
+function renderUploadAssets(){
+  const filtered=getFilteredAssets();
+  const container=document.getElementById('upload-asset-list');
+  GRPREG.up=[];GRPKEYS.up=[];VISIBLE_UP=[];
+  const pid=state.activePlatform;
+  GRPPREFIX.up='up:'+pid+':';
+  const list=state.uploadLog[pid]||[];
+  if(filtered.length===0){
+    const msg=list.length===0?'Belum ada aset. Klik "Upload CSV" untuk upload.':'Tidak ada aset sesuai filter.';
+    container.innerHTML='<div class="placeholder" style="padding:40px 20px"><div class="placeholder-icon">'+ic('inbox')+'</div>'+msg+'</div>';
+    return;
+  }
+  const idxMap=new Map();list.forEach((a,i)=>idxMap.set(a,i));
+  const filterActive=upFilterActive();
+  const today=trackerKey();
+  const statusLabel={pending:'Pending',review:'Review',accepted:'Accepted',rejected:'Rejected'};
+  const row=(a,showDate)=>{
+    const idx=idxMap.get(a);
+    const age=a.status==='review'?ageDays(a):0;
+    const badge=age>=REVIEW_ALERT_DAYS?'<span class="age-badge" title="Sudah '+age+' hari berstatus Review">'+age+' hari</span>':'';
+    const dl=showDate?'<span class="asset-date">'+esc(relDay(toWIBKey(a.uploadedAt)))+'</span>':'';
+    return '<div class="asset-row'+(state.selected.has(a)?' sel':'')+'" data-aidx="'+idx+'" onclick="'+(state.selectMode?'toggleSel('+idx+')':'openStatusModal('+idx+')')+'">'+(state.selectMode?'<span class="sel-check">'+ic('check','sm')+'</span>':'')+'<div class="asset-info"><div class="asset-filename">'+esc(a.filename)+'</div><div class="asset-title-sm">'+esc(a.title||'(no title)')+'</div></div><div class="asset-side"><div class="asset-side-top">'+badge+'<span class="asset-status '+a.status+'">'+statusLabel[a.status]+'</span></div>'+dl+'</div></div>';
+  };
+  const byTypeOf=arr=>{const m={};arr.forEach(a=>{const t=a.type||inferType(a.filename);(m[t]=m[t]||[]).push(a);});return m;};
+  let html='';
+  if(UPGROUP==='date'){
+    const byDate={};
+    filtered.forEach(a=>{const k=toWIBKey(a.uploadedAt)||'unknown';(byDate[k]=byDate[k]||[]).push(a);});
+    const keys=Object.keys(byDate).sort();if(UPSORT!=='old')keys.reverse();
+    keys.forEach(k=>{
+      const items=byDate[k];
+      const gk='up:'+pid+':d:'+k,def=!filterActive&&k!==today,col=isCollapsed(gk,def);
+      GRPKEYS.up.push({k:gk,def:def});
+      const gid=regGrp('up',items);
+      const tag=k===today?'<span class="today-tag">Hari ini</span>':'';
+      html+=grpHead('date','up',gk,def,col,'<span class="date-group-text">'+esc(k==='unknown'?'Tanggal tidak diketahui':fmtLongKey(k))+'</span>'+tag+'<span class="grow"></span><span class="grp-sum">'+sumChips(items)+'</span><span class="date-group-count">'+items.length+' aset</span>',gid);
+      if(col)return;
+      const bt=byTypeOf(items);
+      assetTypes.forEach(t=>{
+        if(!bt[t])return;
+        const arr=sortAssets(bt[t],UPSORT,false);
+        const tk='up:'+pid+':t:'+k+'|'+t,tcol=isCollapsed(tk,false);
+        GRPKEYS.up.push({k:tk,def:false});
+        const tg=regGrp('up',arr);
+        html+=grpHead('type','up',tk,false,tcol,'<span>'+esc(t)+' ('+arr.length+')</span>',tg);
+        if(!tcol)arr.forEach(a=>{VISIBLE_UP.push(a);html+=row(a,false);});
+      });
+    });
+  }else{
+    const bt=byTypeOf(filtered);
+    assetTypes.forEach(t=>{
+      if(!bt[t])return;
+      const arr=sortAssets(bt[t],UPSORT,true);
+      const tk='up:'+pid+':T:'+t,tcol=isCollapsed(tk,false);
+      GRPKEYS.up.push({k:tk,def:false});
+      const tg=regGrp('up',arr);
+      html+=grpHead('type','up',tk,false,tcol,'<span>'+esc(t)+' ('+arr.length+')</span>',tg);
+      if(!tcol)arr.forEach(a=>{VISIBLE_UP.push(a);html+=row(a,true);});
+    });
+  }
+  container.innerHTML=html;
+}
+
+// ---- Analytics ----
+function renderAnaAssetList(){
+  const arr=getAnaAssets();
+  const c=document.getElementById('ana-asset-list');
+  GRPREG.an=[];GRPKEYS.an=[];GRPPREFIX.an='an:'+state.anaPlatform+':';
+  if(arr.length===0){
+    c.innerHTML='<div class="placeholder" style="padding:40px 20px"><div class="placeholder-icon">'+ic('inbox')+'</div>Belum ada aset.</div>';
+    updateCollapseBtn('an','an-collapse-btn','Ciutkan semua','Buka semua');return;
+  }
+  const filterActive=!!(document.getElementById('ana-date-from').value||document.getElementById('ana-date-to').value);
+  const today=trackerKey();
+  const groupsByDate={};
+  arr.forEach(a=>{const key=toWIBKey(a.uploadedAt)||'unknown';(groupsByDate[key]=groupsByDate[key]||[]).push(a);});
+  const sorted=Object.keys(groupsByDate).sort((a,b)=>b.localeCompare(a));
+  const statusLabel={pending:'Pending',review:'Review',accepted:'Accepted',rejected:'Rejected'};
+  const statusOrder={accepted:0,review:1,pending:2,rejected:3};
+  const showPlat=state.anaPlatform==='all';
+  let html='';
+  sorted.forEach(k=>{
+    const items=groupsByDate[k];
+    const gk='an:'+state.anaPlatform+':d:'+k,def=!filterActive&&k!==today,col=isCollapsed(gk,def);
+    GRPKEYS.an.push({k:gk,def:def});
+    const tag=k===today?'<span class="today-tag">Hari ini</span>':'';
+    html+=grpHead('date','an',gk,def,col,'<span class="date-group-text">'+esc(k==='unknown'?'Tanggal tidak diketahui':fmtLongKey(k))+'</span>'+tag+'<span class="grow"></span><span class="grp-sum">'+sumChips(items)+'</span><span class="date-group-count">'+items.length+' aset</span>',-1);
+    if(col)return;
+    const typeGroups={};
+    items.forEach(a=>{const t=a.type||inferType(a.filename);(typeGroups[t]=typeGroups[t]||[]).push(a);});
+    assetTypes.forEach(t=>{
+      if(!typeGroups[t])return;
+      typeGroups[t].sort((a,b)=>{const sa=statusOrder[a.status],sb=statusOrder[b.status];if(sa!==sb)return sa-sb;return a.filename.localeCompare(b.filename,undefined,{numeric:true,sensitivity:'base'});});
+      const tk='an:'+state.anaPlatform+':t:'+k+'|'+t,tcol=isCollapsed(tk,false);
+      GRPKEYS.an.push({k:tk,def:false});
+      html+=grpHead('type','an',tk,false,tcol,'<span>'+esc(t)+' ('+typeGroups[t].length+')</span>',-1);
+      if(tcol)return;
+      typeGroups[t].forEach(a=>{
+        html+='<div class="ana-asset-card '+a.status+'"><div class="ana-asset-left"><div class="ana-asset-filename">'+(showPlat?'<span class="plat-tag">'+esc(platformName(a._p))+'</span>':'')+esc(a.filename)+'</div><div class="ana-asset-title">'+esc(a.title||'(no title)')+'</div>'+(a.reason?'<div class="ana-asset-reason">'+esc(a.reason)+'</div>':'')+'</div><span class="ana-asset-badge '+a.status+'">'+statusLabel[a.status]+'</span></div>';
+      });
+    });
+  });
+  c.innerHTML=html;
+  updateCollapseBtn('an','an-collapse-btn','Ciutkan semua','Buka semua');
+}
+
+// ---- Daily: Aset Hari Ini ----
+function getFilteredDailyAssetsX(){return getFilteredDailyAssets();}
+function toggleDailyCard(){setCollapsed('dl:card',!isCollapsed('dl:card',false));renderDailyAssets();}
+function renderDailyAssets(){
+  const count=state.dailyAssets.length;
+  document.getElementById('daily-asset-count').textContent=count;
+  GRPREG.dl=[];GRPKEYS.dl=[];
+  const cardCol=isCollapsed('dl:card',false);
+  document.getElementById('dl-title').classList.toggle('collapsed',cardCol);
+  document.getElementById('daily-assets-body').classList.toggle('hide',cardCol);
+  const types=['ALL','Icon Set','Single Icon','Vector','Safe Vector','Flat Vector','Video','Image'];
+  const counts={ALL:count};types.slice(1).forEach(t=>{counts[t]=state.dailyAssets.filter(a=>a.type===t).length;});
+  document.getElementById('daily-assets-filter').innerHTML=types.map(t=>{
+    const cc=counts[t]||0;
+    if(t!=='ALL'&&cc===0)return '';
+    return '<button class="asset-filter-btn '+(dailyAssetFilter===t?'active':'')+'" onclick="setDailyFilter(\''+esc(t)+'\')">'+esc(t==='ALL'?'Semua':t)+'<span class="count">'+cc+'</span></button>';
+  }).join('');
+  const c=document.getElementById('daily-asset-list');
+  const filtered=getFilteredDailyAssets();
+  if(filtered.length===0){
+    c.innerHTML='<div class="asset-empty">Belum ada aset'+(dailyAssetFilter!=='ALL'?' jenis '+esc(dailyAssetFilter):'')+'.</div>';
+    updateCollapseBtn('dl','dl-collapse-btn','Ciutkan jenis','Buka jenis');return;
+  }
+  const tagColorMap={'Icon Set':['var(--jade-soft)','var(--jade-deep)'],'Single Icon':['var(--peach-soft)','var(--text)'],'Video':['var(--red-soft)','var(--red)'],'Image':['var(--warm-soft)','var(--text)'],'Vector':['var(--mustard-soft)','var(--text)'],'Safe Vector':['var(--jade-soft)','var(--jade-deep)'],'Flat Vector':['var(--mustard-soft)','var(--text)']};
+  const idxMap=new Map();state.dailyAssets.forEach((a,i)=>idxMap.set(a,i));
+  const item=a=>{
+    const tc=tagColorMap[a.type]||['var(--surface-2)','var(--text-2)'];
+    const dateStr=fmtKey(toWIBKey(a.addedAt)||trackerKey());
+    return '<div class="daily-asset-item"><div class="daily-asset-info"><div class="daily-asset-name" title="'+esc(a.name)+'">'+esc(a.name)+'</div><div class="daily-asset-date">'+dateStr+'</div></div><span class="daily-asset-tag" style="background:'+tc[0]+';color:'+tc[1]+'">'+esc(a.type)+'</span><button class="daily-asset-del" onclick="deleteDailyAsset('+idxMap.get(a)+')" title="Hapus aset ini" aria-label="Hapus aset ini">'+ic('trash')+'</button></div>';
+  };
+  if(dailyAssetFilter!=='ALL'){
+    c.innerHTML=naturalSort(filtered,a=>a.name).map(item).join('');
+  }else{
+    const by={};filtered.forEach(a=>{(by[a.type]=by[a.type]||[]).push(a);});
+    let html='';
+    ['Icon Set','Single Icon','Vector','Safe Vector','Flat Vector','Video','Image','Other'].forEach(t=>{
+      if(!by[t])return;
+      const gk='dl:t:'+t,col=isCollapsed(gk,false);
+      GRPKEYS.dl.push({k:gk,def:false});
+      html+=grpHead('type','dl',gk,false,col,'<span>'+esc(t)+' ('+by[t].length+')</span>',-1);
+      if(!col)html+=naturalSort(by[t],a=>a.name).map(item).join('');
+    });
+    c.innerHTML=html;
+  }
+  updateCollapseBtn('dl','dl-collapse-btn','Ciutkan jenis','Buka jenis');
+}
+
+function renderUploadLog(){renderPlatformTabs();renderStatsBar();renderUploadAssets();renderUpTools();renderSelBar();}
 
 function openStatusModal(idx){
   state.editingIdx=idx;
@@ -1718,30 +1978,6 @@ function saveBulk(){
 
 
 function getFilteredDailyAssets(){if(dailyAssetFilter==='ALL')return state.dailyAssets;return state.dailyAssets.filter(a=>a.type===dailyAssetFilter);}
-function renderDailyAssets(){
-  const count=state.dailyAssets.length;
-  document.getElementById('daily-asset-count').textContent=count;
-  const types=['ALL','Icon Set','Single Icon','Vector','Safe Vector','Flat Vector','Video','Image'];
-  const counts={ALL:count};types.slice(1).forEach(t=>{counts[t]=state.dailyAssets.filter(a=>a.type===t).length;});
-  const filterHtml=types.map(t=>{
-    const c=counts[t]||0;
-    if(t!=='ALL'&&c===0)return '';
-    const label=t==='ALL'?'Semua':t;
-    return `<button class="asset-filter-btn ${dailyAssetFilter===t?'active':''}" onclick="setDailyFilter('${esc(t)}')">${esc(label)}<span class="count">${c}</span></button>`;
-  }).join('');
-  document.getElementById('daily-assets-filter').innerHTML=filterHtml;
-  const c=document.getElementById('daily-asset-list');
-  const filtered=getFilteredDailyAssets();
-  if(filtered.length===0){c.innerHTML=`<div class="asset-empty">Belum ada aset${dailyAssetFilter!=='ALL'?' jenis '+esc(dailyAssetFilter):''}.</div>`;return;}
-  const sorted=naturalSort(filtered,a=>a.name);
-  const tagColorMap={'Icon Set':['var(--jade-soft)','var(--jade-deep)'],'Single Icon':['var(--peach-soft)','var(--text)'],'Video':['var(--red-soft)','var(--red)'],'Image':['var(--warm-soft)','var(--text)'],'Vector':['var(--mustard-soft)','var(--text)'],'Safe Vector':['var(--jade-soft)','var(--jade-deep)'],'Flat Vector':['var(--mustard-soft)','var(--text)']};
-  c.innerHTML=sorted.map(a=>{
-    const tc=tagColorMap[a.type]||['var(--surface-2)','var(--text-2)'];const t={bg:tc[0],color:tc[1]};
-    const dateStr=fmtKey(toWIBKey(a.addedAt)||trackerKey());
-    const realIdx=state.dailyAssets.indexOf(a);
-    return `<div class="daily-asset-item"><div class="daily-asset-info"><div class="daily-asset-name" title="${esc(a.name)}">${esc(a.name)}</div><div class="daily-asset-date">${dateStr}</div></div><span class="daily-asset-tag" style="background:${t.bg};color:${t.color}">${esc(a.type)}</span><button class="daily-asset-del" onclick="deleteDailyAsset(${realIdx})" title="Hapus aset ini" aria-label="Hapus aset ini">${ic('trash')}</button></div>`;
-  }).join('');
-}
 function setDailyFilter(t){dailyAssetFilter=t;renderDailyAssets();}
 
 function deleteDailyAsset(idx){
@@ -1841,40 +2077,6 @@ function renderAnaBreakdown(){
     const color=rate>=70?'var(--st-acc)':rate>=40?'var(--st-rev)':'var(--st-rej)';
     return `<div class="breakdown-card"><div class="breakdown-name"><span>${esc(b.type)}</span><span class="breakdown-count">${b.acc}/${b.total}</span></div><div class="breakdown-bar"><div class="breakdown-fill" style="width:${rate}%;background:${color}"></div></div><div class="breakdown-percent">${rate}% accepted (dari total)</div></div>`;
   }).join('');
-}
-function renderAnaAssetList(){
-  const arr=getAnaAssets();
-  const c=document.getElementById('ana-asset-list');
-  if(arr.length===0){c.innerHTML='<div class="placeholder" style="padding:40px 20px"><div class="placeholder-icon">'+ic('inbox')+'</div>Belum ada aset.</div>';return;}
-  const groupsByDate={};
-  arr.forEach(a=>{const key=toWIBKey(a.uploadedAt)||'unknown';(groupsByDate[key]=groupsByDate[key]||[]).push(a);});
-  const sorted=Object.keys(groupsByDate).sort((a,b)=>b.localeCompare(a));
-  const m=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const dy=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const statusLabel={pending:' Pending',review:' Review',accepted:' Accepted',rejected:' Rejected'};
-  const statusOrder={accepted:0,review:1,pending:2,rejected:3};
-  const showPlat=state.anaPlatform==='all';
-  let html='';
-  sorted.forEach(k=>{
-    const d=new Date(k+'T12:00:00Z');
-    const label=isNaN(d.getTime())?'Tanggal tidak diketahui':`${dy[d.getUTCDay()]}, ${d.getUTCDate()} ${m[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-    html+=`<div class="date-group-header"><span class="date-group-text">${label}</span><span class="date-group-count">${groupsByDate[k].length} aset</span></div>`;
-    const typeGroups={};
-    groupsByDate[k].forEach(a=>{const t=a.type||inferType(a.filename);(typeGroups[t]=typeGroups[t]||[]).push(a);});
-    assetTypes.forEach(t=>{
-      if(!typeGroups[t])return;
-      typeGroups[t].sort((a,b)=>{
-        const sa=statusOrder[a.status],sb=statusOrder[b.status];
-        if(sa!==sb)return sa-sb;
-        return a.filename.localeCompare(b.filename,undefined,{numeric:true,sensitivity:'base'});
-      });
-      html+=`<div class="type-subheader">${esc(t)} (${typeGroups[t].length})</div>`;
-      typeGroups[t].forEach(a=>{
-        html+=`<div class="ana-asset-card ${a.status}"><div class="ana-asset-left"><div class="ana-asset-filename">${showPlat?`<span class="plat-tag">${esc(platformName(a._p))}</span>`:''}${esc(a.filename)}</div><div class="ana-asset-title">${esc(a.title||'(no title)')}</div>${a.reason?`<div class="ana-asset-reason">↳ ${esc(a.reason)}</div>`:''}</div><span class="ana-asset-badge ${a.status}">${statusLabel[a.status]}</span></div>`;
-      });
-    });
-  });
-  c.innerHTML=html;
 }
 function renderAnalytics(){renderAnaPlatformTabs();renderAnaSummary();renderAnaCompare();renderAnaBreakdown();renderAnaAssetList();}
 function downloadBlob(text,type,filename){
