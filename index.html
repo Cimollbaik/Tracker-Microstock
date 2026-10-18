@@ -2831,7 +2831,7 @@ function renderEarnAnalysis(){
     accT[t]=(accT[t]||0)+1;accS[s]=(accS[s]||0)+1;accP[p]=(accP[p]||0)+1;accTotal++;
   }));
   const totalUsd=round2(rows.reduce((t,r)=>t+r.usd,0)),totalDl=rows.reduce((t,r)=>t+r.dl,0);
-  const byT=aggBy(rows,r=>r.type,accT),byS=aggBy(rows,r=>r.seri,accS),byP=aggBy(rows,r=>platformName(r.platform),null);
+  const byT=aggBy(rows,r=>r.type,accT),byP=aggBy(rows,r=>platformName(r.platform),null);
   const soldAcc=rows.filter(r=>r.asset&&r.asset.status==='accepted').length;
   const top=rows.slice().sort((a,b)=>(b.usd-a.usd)||(b.dl-a.dl)).slice(0,10);
   // ringkasan
@@ -2839,8 +2839,6 @@ function renderEarnAnalysis(){
   const nSales=state.sales.filter(s=>EASCOPE==='all'||(s.kind==='m'&&s.month===state.earnMonth)).length;
   if(nSales<20)ins.push('Data masih sedikit ('+nSales+' catatan penjualan), anggap ini gambaran awal, bukan kesimpulan.');
   if(byT[0]&&byT[0].usd>0)ins.push('Jenis paling menghasilkan: <b>'+esc(byT[0].name)+'</b> ('+fmtUsd(byT[0].usd)+' dari '+byT[0].n+' aset).');
-  const sTop=byS.find(g=>g.usd>0);
-  if(sTop&&byS.filter(g=>g.usd>0).length>1)ins.push('Seri paling menghasilkan: <b>'+esc(sTop.name)+'</b> ('+fmtUsd(sTop.usd)+').');
   if(accTotal>0)ins.push(soldAcc+' dari '+accTotal+' aset Accepted ('+Math.round(soldAcc/accTotal*100)+'%) sudah tercatat laku.');
   // Accepted lama belum laku
   const soldSet=new Set(assetTotals('all').map(r=>r.asset).filter(Boolean));
@@ -2857,7 +2855,6 @@ function renderEarnAnalysis(){
     +'<div class="an-grid">'
     +'<div class="an-card card"><div class="an-title">Aset terlaris</div>'+top.map((r,i)=>'<div class="imp-row"><span><b>'+(i+1)+'.</b> '+esc(r.label)+' <span class="type-tag">'+esc(r.type)+'</span></span><b>'+fmtUsd(r.usd)+'</b></div>').join('')+'</div>'
     +'<div class="an-card card"><div class="an-title">Per jenis aset</div>'+anRows(byT,true)+'</div>'
-    +'<div class="an-card card"><div class="an-title">Per seri (huruf awalan)</div>'+anRows(byS.slice(0,12),true)+(byS.length>12?'<div class="an-sub">dan '+(byS.length-12)+' seri lain</div>':'')+'</div>'
     +'<div class="an-card card"><div class="an-title">Per platform</div>'+anRows(byP,false)+'</div>'
     +'</div>'+unsoldHtml;
 }
