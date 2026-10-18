@@ -577,6 +577,31 @@ button.stat-pill:active{transform:scale(.97)}
 @media (max-width:1100px){.earn-platforms{grid-template-columns:repeat(2,1fr)}.earn-hero,.earn-card{grid-template-columns:1fr}.earn-hero-since{border-left:none;padding-left:0}}
 @media (max-width:700px){.earn-hero-value{font-size:42px}.month-label{min-width:130px;font-size:19px}}
 
+/* ===== tahap 2b: kelompok Earnings, analisis ===== */
+.type-tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:100px;background:var(--jade-soft);color:var(--jade-deep);margin-right:6px}
+.ea-sub{font-size:12px;font-weight:800;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin:6px 0 10px}
+.ea-sub b{color:var(--text)}
+.earn-export{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sdet-row{cursor:pointer;padding:12px 4px}
+.an-hidden{padding:34px 20px;text-align:center;color:var(--text-3);font-weight:600;font-size:13px}
+.an-ring{display:grid;grid-template-columns:auto 1fr;gap:26px;padding:20px 24px;margin-bottom:12px;align-items:center}
+.an-big{font-family:var(--font-head);font-weight:800;font-size:40px;letter-spacing:-.05em;line-height:1.1;margin-top:4px}
+.an-ins{list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:var(--text-2);line-height:1.5;padding-left:22px;border-left:1px solid var(--line)}
+.an-ins li{position:relative}.an-ins b{color:var(--text)}
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.an-card{padding:16px 18px}
+.an-title{font-family:var(--font-head);font-weight:800;font-size:15px;margin-bottom:10px}
+.an-row{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:9px 0;border-top:1px solid var(--line)}
+.an-name{font-weight:700;font-size:13.5px}
+.an-val{font-family:var(--font-head);font-weight:800;font-size:14.5px}
+.an-bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.an-bar i{display:block;height:100%;border-radius:3px;background:var(--jade)}
+.an-sub{font-size:11.5px;color:var(--text-3);font-weight:600}
+.an-sub.r{text-align:right}
+.an-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+details summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--jade-deep);padding:6px 0}
+@media (max-width:1100px){.an-grid{grid-template-columns:1fr}.an-ring{grid-template-columns:1fr}.an-ins{border-left:none;padding-left:0}}
+
 </style>
 </head>
 <body>
@@ -736,10 +761,15 @@ button.stat-pill:active{transform:scale(.97)}
 <div class="earn-platforms" id="earn-platforms"></div>
 <div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg></span> Tren 6 bulan</div>
 <div class="card earn-trend" id="earn-trend"></div>
-<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span> Penjualan per aset · <span id="earn-sales-month"></span></div>
+<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-target"/></svg></span> Analisis<span class="grow"></span><div class="seg" id="ea-scope-seg"><button data-s="month" onclick="setEAScope('month')">Bulan ini</button><button data-s="all" onclick="setEAScope('all')">Semua waktu</button></div></div>
+<div id="earn-analysis"></div>
+<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span> Penjualan per aset</div>
+<div class="list-tools" id="ea-tools"><div class="seg" id="eg-seg"><button data-g="type" onclick="setEGroup('type')">Jenis</button><button data-g="seri" onclick="setEGroup('seri')">Seri</button><button data-g="platform" onclick="setEGroup('platform')">Platform</button><button data-g="none" onclick="setEGroup('none')">Tanpa</button></div><button class="btn-collapse" id="ea-collapse-btn" onclick="toggleAllGroups('ea')">Ciutkan semua</button></div>
+<div class="ea-sub">Bulan: <b id="earn-sales-month"></b></div>
 <div id="earn-sales-list"></div>
-<div class="section-title"><span class="icon"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg></span> Total seumur hidup per aset</div>
+<div class="ea-sub" style="margin-top:18px">Total seumur hidup per aset</div>
 <div id="earn-life-list"></div>
+<div class="earn-export"><button class="btn-collapse" onclick="exportSalesCSV()"><svg class="i sm" aria-hidden="true"><use href="#i-download"/></svg>Export penjualan per aset (CSV)</button><button class="btn-collapse" onclick="exportEarnMonthlyCSV()"><svg class="i sm" aria-hidden="true"><use href="#i-download"/></svg>Export total bulanan (CSV)</button></div>
 </div>
 <div class="page" id="page-settings">
 <div class="set-section" id="sec-target">
@@ -963,6 +993,7 @@ button.stat-pill:active{transform:scale(.97)}
 <div class="form-field"><label class="form-label">Jenis catatan</label><div class="seg" id="sl-kind-seg"><button data-k="m" onclick="setSaleKind('m')">Bulanan</button><button data-k="life" onclick="setSaleKind('life')">Total seumur hidup</button></div><div class="set-hint" id="sl-kind-hint" style="margin:8px 0 0"></div></div>
 <div class="form-field" id="sl-month-field"><label class="form-label">Bulan</label><input type="month" class="form-input" id="sl-month"></div>
 <div class="form-field"><label class="form-label">Aset</label><input type="text" class="form-input" id="sl-asset" placeholder="Cari nama file atau judul..." oninput="onSaleAsset()" autocomplete="off"><div id="sl-suggest" class="suggest"></div><div class="set-hint" id="sl-linked" style="margin:8px 0 0"></div></div>
+<div class="form-field"><label class="form-label">Jenis Aset</label><select class="form-select" id="sl-type" onchange="onSaleType()"></select><div class="set-hint" style="margin:8px 0 0" id="sl-type-hint"></div></div>
 <div class="form-row-2"><div class="form-field"><label class="form-label">Unduhan</label><input type="number" min="0" step="1" class="form-input" id="sl-dl" inputmode="numeric"></div><div class="form-field"><label class="form-label">Pendapatan (USD)</label><input type="number" min="0" step="0.01" class="form-input" id="sl-usd" inputmode="decimal"></div></div>
 <div class="form-field"><label class="form-label">Tanggal unggah asli (opsional)</label><input type="date" class="form-input" id="sl-upl"><div class="set-hint" style="margin:8px 0 0">Kalau diisi dan asetnya ada di Upload Log, tanggal upload aset itu ikut diperbarui.</div></div>
 <label class="chk-row hide" id="sl-add-row"><input type="checkbox" id="sl-add" checked><span>Tambahkan ke Upload Log sebagai Accepted (tanggal tidak diketahui)</span></label>
@@ -978,6 +1009,11 @@ button.stat-pill:active{transform:scale(.97)}
 <div id="eimp-preview" style="margin-top:14px"></div>
 </div>
 <div class="modal-footer"><button class="btn btn-ghost btn-small" onclick="closeEarnImport()">Batal</button><button class="btn btn-primary btn-small hide" id="eimp-go" onclick="applyEarnImport()">Impor</button></div>
+</div></div>
+<div class="modal-overlay" id="sdet-modal"><div class="modal">
+<div class="modal-header"><div class="modal-title" id="sdet-title">Rincian penjualan</div><button class="modal-close" onclick="closeSaleDetail()" aria-label="Tutup"><svg class="i sm" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+<div class="modal-body" id="sdet-body"></div>
+<div class="modal-footer"><button class="btn btn-ghost btn-small" onclick="closeSaleDetail()">Tutup</button></div>
 </div></div>
 <div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-text">—</span><button class="toast-action" id="toast-action" style="display:none"></button></div>
 
@@ -1139,7 +1175,7 @@ function normSales(arr){
     if(seen.has(id))return;seen.add(id);
     out.push({id:id,platform:s.platform,kind:kind,month:month,
       date:/^\d{4}-\d{2}-\d{2}$/.test(s.date||'')?s.date:'',asOf:/^\d{4}-\d{2}-\d{2}$/.test(s.asOf||'')?s.asOf:'',
-      key:str(s.key,300),name:name,title:title,fn:str(s.fn,200),
+      key:str(s.key,300),name:name,title:title,fn:str(s.fn,200),type:assetTypes.includes(s.type)?s.type:'',lic:str(s.lic,24),size:str(s.size,16),
       dl:(Number.isFinite(dl)&&dl>=0)?dl:0,usd:(Number.isFinite(usd)&&usd>=0)?round2(usd):0,ref:str(s.ref,200),src:str(s.src,20)});
   });
   return out.slice(0,20000);
@@ -1755,13 +1791,13 @@ function saveCollapse(){
 }
 function isCollapsed(key,def){return Object.prototype.hasOwnProperty.call(COLLAPSE,key)?!!COLLAPSE[key]:!!def;}
 function setCollapsed(key,v){COLLAPSE[key]=!!v;saveCollapse();}
-const GRPREG={up:[],an:[],dl:[]},GRPKEYS={up:[],an:[],dl:[]};
+const GRPREG={up:[],an:[],dl:[],ea:[]},GRPKEYS={up:[],an:[],dl:[],ea:[]};
 let VISIBLE_UP=[];
 function getVisibleAssets(){return VISIBLE_UP;}
 function regGrp(scope,arr){GRPREG[scope].push(arr);return GRPREG[scope].length-1;}
-function rerenderScope(s){if(s==='up')renderUploadLog();else if(s==='an')renderAnaAssetList();else renderDailyAssets();}
+function rerenderScope(s){if(s==='up')renderUploadLog();else if(s==='an')renderAnaAssetList();else if(s==='ea')renderSalesLists();else renderDailyAssets();}
 function toggleGrp(el){const k=el.dataset.gk,d=el.dataset.gd==='1';setCollapsed(k,!isCollapsed(k,d));rerenderScope(el.dataset.gs);}
-const GRPPREFIX={up:'',an:'',dl:'dl:'};
+const GRPPREFIX={up:'',an:'',dl:'dl:',ea:'ea:'};
 function toggleAllGroups(scope){
   const keys=GRPKEYS[scope]||[];if(!keys.length)return;
   const anyOpen=keys.some(g=>!isCollapsed(g.k,g.def));
@@ -2461,6 +2497,401 @@ async function handleImportFile(ev){
 // ===================== EARNINGS =====================
 const UNKNOWN_KEY='2000-01-01',UNKNOWN_ISO='2000-01-01T12:00:00.000Z';
 const MON_FULL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ===================== EARNINGS 2b =====================
+let LINK_CACHE=null;
+function linkIdx(){
+  if(LINK_CACHE)return LINK_CACHE;
+  const c={};
+  PLATFORM_IDS.forEach(p=>{
+    const st=new Map(),tt=new Map();
+    (state.uploadLog[p]||[]).forEach(a=>{
+      const k=fileStem(a.filename);if(!st.has(k))st.set(k,a);
+      const t=normText(a.title);if(t&&!tt.has(t))tt.set(t,a);
+    });
+    c[p]={st:st,tt:tt};
+  });
+  LINK_CACHE=c;return c;
+}
+// aset di Upload Log yang cocok dengan catatan penjualan (nama file, atau judul/deskripsi)
+function linkedAsset(s){
+  const ix=linkIdx()[s.platform];if(!ix)return null;
+  const byStem=n=>n?(ix.st.get(fileStem(n))||null):null;
+  let f=byStem(s.fn)||byStem(s.name);if(f)return f;
+  const nt=normText(s.title||s.name);
+  if(nt.length>=12){
+    f=ix.tt.get(nt);if(f)return f;
+    if(nt.length>=30){for(const e of ix.tt){if(e[0].length>=30&&(e[0].includes(nt)||nt.includes(e[0])))return e[1];}}
+  }
+  return null;
+}
+function seriOf(name){const m=/^([A-Za-z]{1,6})(?=\d)/.exec(String(name||'').trim());return m?m[1].toUpperCase():'Lainnya';}
+function saleType(s,a){const x=(a===undefined)?linkedAsset(s):a;return (x&&x.type)||(assetTypes.includes(s.type)?s.type:'Other');}
+function adobeAutoType(media,fn,title){
+  const m=String(media||'').toLowerCase();
+  if(m.indexOf('video')>=0)return 'Video';
+  if(m.indexOf('photo')>=0)return 'Image';
+  if(looksLikeSet(title))return 'Icon Set';
+  const t=inferTypeFromAll(fn,title,'');
+  return (t==='Image'||t==='Other'||t==='Video')?'Vector':t;
+}
+
+// ---------- daftar penjualan: gabung per aset, kelompok, urut pendapatan ----------
+let EGROUP='type',EASCOPE='all',EROWS=[];
+try{const g=localStorage.getItem('ms_egroup');if(g==='type'||g==='seri'||g==='platform'||g==='none')EGROUP=g;}catch(e){}
+function setEGroup(g){EGROUP=g;try{localStorage.setItem('ms_egroup',g);}catch(e){}renderSalesLists();updateEarnSegs();}
+function setEAScope(s){EASCOPE=s;renderEarnAnalysis();updateEarnSegs();}
+function updateEarnSegs(){
+  document.querySelectorAll('#eg-seg button').forEach(b=>b.classList.toggle('active',b.dataset.g===EGROUP));
+  document.querySelectorAll('#ea-scope-seg button').forEach(b=>b.classList.toggle('active',b.dataset.s===EASCOPE));
+}
+function aggregateSales(list){
+  const map=new Map();
+  list.forEach(s=>{
+    const a=linkedAsset(s);
+    const key=s.platform+'|'+(a?'f:'+fileStem(a.filename):(s.key||('t:'+normText(s.title||s.name))));
+    let r=map.get(key);
+    if(!r){r={key:key,platform:s.platform,asset:a,label:a?a.filename:(s.name||s.title),title:a?(a.title||''):(s.title||''),type:saleType(s,a),seri:seriOf(a?a.filename:(s.name||'')),dl:0,usd:0,sales:[]};map.set(key,r);}
+    r.dl+=s.dl;r.usd+=s.usd;r.sales.push(s);
+  });
+  return Array.from(map.values()).map(r=>{r.usd=round2(r.usd);return r;});
+}
+function groupRows(rows){
+  const groups=new Map();
+  rows.forEach(r=>{
+    const gk=EGROUP==='type'?r.type:(EGROUP==='seri'?r.seri:(EGROUP==='platform'?platformName(r.platform):'Semua'));
+    let g=groups.get(gk);if(!g){g={name:gk,rows:[],usd:0,dl:0};groups.set(gk,g);}
+    g.rows.push(r);g.usd+=r.usd;g.dl+=r.dl;
+  });
+  const arr=Array.from(groups.values());
+  arr.forEach(g=>{g.usd=round2(g.usd);g.rows.sort((a,b)=>(b.usd-a.usd)||a.label.localeCompare(b.label,undefined,{numeric:true,sensitivity:'base'}));});
+  arr.sort((a,b)=>(b.usd-a.usd)||a.name.localeCompare(b.name));
+  return arr;
+}
+function eRow(r){
+  const idx=EROWS.length;EROWS.push(r);
+  const tag=r.asset?'<span class="link-tag ok">di Upload Log</span>':'<span class="link-tag">belum di Upload Log</span>';
+  const multi=r.sales.length>1?' · '+r.sales.length+' penjualan':'';
+  const lic=(r.sales.length===1&&r.sales[0].lic)?' · '+esc(r.sales[0].lic):'';
+  const when=(r.sales.length===1)?(r.sales[0].kind==='m'?(r.sales[0].date?' · '+esc(fmtShortKey2(r.sales[0].date)):''):(' · per '+esc(fmtShortKey2(r.sales[0].asOf||'')))):'';
+  const kind=EGROUP==='type'?'':('<span class="type-tag">'+esc(r.type)+'</span>');
+  return '<div class="sale-row" onclick="onERow('+idx+')"><div class="sale-info"><div class="sale-name"><span class="plat-tag">'+esc(platformName(r.platform))+'</span>'+esc(r.label)+'</div>'+(r.title?'<div class="sale-sub">'+esc(r.title)+'</div>':'')+'<div class="sale-meta">'+kind+tag+multi+lic+when+'</div></div><div class="sale-nums"><div class="sale-usd">'+money(r.usd)+'</div><div class="sale-dl">'+nint(r.dl)+' unduhan</div></div></div>';
+}
+function renderSalesGroups(rows,tag,emptyMsg){
+  if(!rows.length)return '<div class="asset-empty">'+emptyMsg+'</div>';
+  const groups=groupRows(rows);
+  if(EGROUP==='none')return groups[0].rows.map(eRow).join('');
+  let html='';
+  groups.forEach(g=>{
+    const key='ea:'+tag+':'+EGROUP+':'+g.name,col=isCollapsed(key,false);
+    GRPKEYS.ea.push({k:key,def:false});
+    html+=grpHead('type','ea',key,false,col,'<span>'+esc(g.name)+' ('+g.rows.length+')</span><span class="grow"></span><span class="grp-sum"><b>'+money(g.usd)+'</b><span class="sd-item">'+nint(g.dl)+' unduhan</span></span>',-1);
+    if(!col)html+=g.rows.map(eRow).join('');
+  });
+  return html;
+}
+function renderSalesLists(){
+  const m=state.earnMonth;
+  document.getElementById('earn-sales-month').textContent=fmtMonth(m);
+  EROWS=[];GRPREG.ea=[];GRPKEYS.ea=[];
+  const mon=state.sales.filter(s=>s.kind==='m'&&s.month===m);
+  const life=state.sales.filter(s=>s.kind==='life');
+  document.getElementById('earn-sales-list').innerHTML=renderSalesGroups(aggregateSales(mon),'M','Belum ada penjualan per aset di bulan ini. Pakai "Import CSV" atau "Tambah penjualan".');
+  document.getElementById('earn-life-list').innerHTML=renderSalesGroups(aggregateSales(life),'L','Belum ada. Dipakai untuk Shutterstock, yang menampilkan penjualan per aset secara "seumur hidup".');
+  updateCollapseBtn('ea','ea-collapse-btn','Ciutkan semua','Buka semua');
+}
+function onERow(i){
+  const r=EROWS[i];if(!r)return;
+  if(r.sales.length===1){openSaleModal(r.sales[0].id);return;}
+  if(state.hideMoney){showToast('Tampilkan earnings dulu untuk melihat rincian','info');return;}
+  document.getElementById('sdet-title').textContent=r.label;
+  const sorted=r.sales.slice().sort((a,b)=>((b.date||'')>(a.date||''))?1:-1);
+  document.getElementById('sdet-body').innerHTML='<div class="set-hint">'+r.sales.length+' penjualan, total <b>'+fmtUsd(r.usd)+'</b> · '+r.dl+' unduhan. Ketuk satu baris untuk mengubahnya.</div>'
+    +sorted.map(s=>'<div class="imp-row sdet-row" onclick="closeSaleDetail();openSaleModal(\''+s.id+'\')"><span>'+esc(s.date?fmtShortKey2(s.date):(s.month?fmtMonth(s.month):''))+(s.lic?' · '+esc(s.lic):'')+'</span><b>'+fmtUsd(s.usd)+'</b></div>').join('');
+  document.getElementById('sdet-modal').classList.add('show');
+}
+function closeSaleDetail(){document.getElementById('sdet-modal').classList.remove('show');}
+
+// ---------- modal tambah / ubah penjualan (dengan Jenis Aset) ----------
+function fillSaleType(v){
+  const sel=document.getElementById('sl-type');
+  sel.innerHTML=assetTypes.map(t=>'<option value="'+esc(t)+'">'+esc(t)+'</option>').join('');
+  sel.value=assetTypes.includes(v)?v:'Vector';
+}
+function onSaleType(){
+  SALE.typeTouched=true;
+  const a=SALE.pick||resolveSaleAsset(document.getElementById('sl-platform').value,document.getElementById('sl-asset').value.trim());
+  document.getElementById('sl-type-hint').textContent=(a&&a.type!==document.getElementById('sl-type').value)?'Jenis aset di Upload Log ikut diubah saat disimpan.':'';
+}
+function openSaleModal(id){
+  let s=null;
+  if(id){
+    s=state.sales.find(x=>x.id===id);if(!s)return;
+    if(state.hideMoney){showToast('Tampilkan earnings dulu untuk mengubah catatan','info');return;}
+  }
+  LINK_CACHE=null;
+  SALE.editing=s?s.id:null;SALE.kind=s?s.kind:'m';SALE.pick=s?linkedAsset(s):null;SALE.typeTouched=!!s;SALE.lastFound=null;
+  document.getElementById('sale-title').textContent=s?'Ubah penjualan':'Tambah penjualan';
+  document.getElementById('sl-platform').value=s?s.platform:lastSalePlat;
+  document.getElementById('sl-month').value=(s&&s.kind==='m')?s.month:state.earnMonth;
+  document.getElementById('sl-asset').value=s?(SALE.pick?SALE.pick.filename:(s.name||s.title)):'';
+  document.getElementById('sl-dl').value=s?s.dl:'';
+  document.getElementById('sl-usd').value=s?s.usd:'';
+  document.getElementById('sl-upl').value='';
+  document.getElementById('sl-del').classList.toggle('hide',!s);
+  fillSaleType(s?saleType(s,SALE.pick||null):'');
+  refreshSaleForm();
+  document.getElementById('sale-modal').classList.add('show');
+}
+function onSaleAsset(){
+  const plat=document.getElementById('sl-platform').value;
+  const inp=document.getElementById('sl-asset');const q=inp.value.trim();
+  if(SALE.pick&&inp.value!==SALE.pick.filename)SALE.pick=null;
+  const sug=document.getElementById('sl-suggest');
+  SALE.sugg=[];
+  if(!SALE.pick&&q.length>=2){
+    const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
+    SALE.sugg=(state.uploadLog[plat]||[]).filter(a=>{const h=(a.filename+' '+(a.title||'')).toLowerCase();return toks.every(t=>h.includes(t));}).slice(0,6);
+  }
+  sug.innerHTML=SALE.sugg.map((a,i)=>'<button type="button" class="suggest-item" onclick="pickSaleAsset('+i+')"><b>'+esc(a.filename)+'</b><span>'+esc((a.title||'').slice(0,70))+'</span></button>').join('');
+  const found=SALE.pick||(q?resolveSaleAsset(plat,q):null);
+  const hint=document.getElementById('sl-linked'),addRow=document.getElementById('sl-add-row'),sel=document.getElementById('sl-type');
+  if(found){
+    hint.textContent='Tertaut ke Upload Log: '+found.filename+(found.title?' · '+found.title.slice(0,60):'');addRow.classList.add('hide');
+    if(SALE.lastFound!==found){SALE.lastFound=found;if(assetTypes.includes(found.type))sel.value=found.type;}
+  }else{
+    SALE.lastFound=null;
+    if(q){
+      hint.textContent='Belum ada di Upload Log.';addRow.classList.remove('hide');
+      if(!SALE.typeTouched){const isF=looksLikeFile(q);const g=inferTypeFromAll(isF?q:q.slice(0,60),isF?'':q,'');sel.value=assetTypes.includes(g)&&g!=='Other'?g:'Vector';}
+    }else{hint.textContent='';addRow.classList.add('hide');}
+  }
+  onSaleTypeHint();
+}
+function onSaleTypeHint(){
+  const a=SALE.pick||resolveSaleAsset(document.getElementById('sl-platform').value,document.getElementById('sl-asset').value.trim());
+  document.getElementById('sl-type-hint').textContent=(a&&a.type!==document.getElementById('sl-type').value)?'Jenis aset di Upload Log ikut diubah saat disimpan.':'';
+}
+function saveSale(){
+  const plat=document.getElementById('sl-platform').value,kind=SALE.kind;
+  const month=document.getElementById('sl-month').value;
+  const text=document.getElementById('sl-asset').value.trim();
+  const dl=parseInt(document.getElementById('sl-dl').value,10)||0;
+  const usd=parseFloat(document.getElementById('sl-usd').value);
+  const upl=document.getElementById('sl-upl').value;
+  const type=document.getElementById('sl-type').value;
+  if(!text){showToast('Isi nama atau judul aset','info');return;}
+  if(!Number.isFinite(usd)||usd<0){showToast('Isi pendapatan (USD)','info');return;}
+  if(kind==='m'&&!/^\d{4}-\d{2}$/.test(month)){showToast('Pilih bulan','info');return;}
+  if(upl&&upl>trackerKey()){showToast('Tanggal unggah tidak boleh di masa depan','info');return;}
+  let a=resolveSaleAsset(plat,text),added=false;
+  if(!a&&document.getElementById('sl-add').checked){a=addAssetToLog(plat,text,upl,'',type);added=true;}
+  else if(a){
+    if(upl&&upl!==toWIBKey(a.uploadedAt))a.uploadedAt=isoForKey(upl);
+    if(assetTypes.includes(type)&&a.type!==type)a.type=type;
+  }
+  const isFile=looksLikeFile(text);
+  const old=SALE.editing?state.sales.find(x=>x.id===SALE.editing):null;
+  const sale={id:SALE.editing||newId(),platform:plat,kind:kind,month:kind==='m'?month:'',date:old?old.date:'',asOf:kind==='life'?trackerKey():'',
+    key:a?'f:'+fileStem(a.filename):(isFile?'f:'+fileStem(text):'t:'+normText(text).slice(0,120)),
+    name:a?a.filename:(isFile?text:''),title:a?(a.title||''):(isFile?'':text),fn:a?a.filename:(isFile?text:''),
+    type:assetTypes.includes(type)?type:'',lic:old?old.lic:'',size:old?old.size:'',
+    dl:dl,usd:round2(usd),ref:old?old.ref:'',src:old?old.src:'manual'};
+  let idx=state.sales.findIndex(x=>x.id===sale.id);
+  if(idx<0)idx=state.sales.findIndex(x=>x.src==='manual'&&x.platform===plat&&x.kind===kind&&x.key===sale.key&&(kind==='life'||x.month===sale.month));
+  if(idx>=0){sale.id=state.sales[idx].id;state.sales[idx]=sale;}else state.sales.push(sale);
+  lastSalePlat=plat;
+  if(kind==='m')state.earnMonth=month;
+  closeSaleModal();commit();
+  showToast(added?'Penjualan disimpan dan aset ditambah ke Upload Log':'Penjualan disimpan','success');
+}
+
+// ---------- impor CSV (dengan jenis aset, lisensi) ----------
+function prepareEarnImport(text){
+  const rows=csvRows(text).filter(r=>r.length>1||(r[0]&&r[0].trim()));
+  const prev=document.getElementById('eimp-preview'),go=document.getElementById('eimp-go');
+  go.classList.add('hide');EIMP=null;
+  const ad=rows.filter(r=>r.length>=7&&/^\d{4}-\d{2}-\d{2}T/.test((r[0]||'').trim())&&/^\d{5,}$/.test((r[1]||'').trim())&&/\d/.test(r[4]||''));
+  if(ad.length){
+    const have=new Set(state.sales.map(s=>s.ref).filter(Boolean));
+    LINK_CACHE=null;const ix=linkIdx().adobe;
+    const items=ad.map(r=>{
+      const ts=r[0].trim(),id=r[1].trim(),usd=round2(parseFloat(String(r[4]).replace(/[^0-9.]/g,''))||0);
+      const date=wibDateKey(ts),fn=(r[6]||'').trim(),title=(r[2]||'').trim(),media=(r[5]||'').trim().toLowerCase();
+      return {ref:'adobe:'+id+'|'+ts,date:date,month:date.slice(0,7),fn:fn,title:title,usd:usd,media:media,lic:(r[3]||'').trim().toLowerCase(),size:(r[8]||'').trim(),
+        auto:adobeAutoType(media,fn,title),dup:have.has('adobe:'+id+'|'+ts),inLog:!!(fn&&ix.st.get(fileStem(fn)))};
+    }).filter(x=>x.date);
+    const fresh=items.filter(x=>!x.dup);
+    const byMonth={};fresh.forEach(x=>{byMonth[x.month]=round2((byMonth[x.month]||0)+x.usd);});
+    const newFiles=[],seen=new Set();
+    fresh.filter(x=>!x.inLog&&x.fn).forEach(x=>{const k=fileStem(x.fn);if(!seen.has(k)){seen.add(k);newFiles.push(x);}});
+    EIMP={kind:'adobe',items:fresh,newFiles:newFiles};
+    const autoCnt={};newFiles.forEach(x=>{autoCnt[x.auto]=(autoCnt[x.auto]||0)+1;});
+    prev.innerHTML='<div class="imp-box"><b>Adobe Stock · Activity</b><br>'+fresh.length+' penjualan baru ('+fmtUsd(round2(fresh.reduce((t,x)=>t+x.usd,0)))+')'
+      +(items.length-fresh.length?' · '+(items.length-fresh.length)+' sudah pernah diimpor (dilewati)':'')
+      +'<br>'+Object.keys(byMonth).sort().map(m=>fmtMonth(m)+': '+fmtUsd(byMonth[m])).join(' · ')
+      +'<br>'+(fresh.filter(x=>x.inLog).length)+' cocok dengan aset di Upload Log, '+fresh.filter(x=>!x.inLog).length+' belum ada.</div>'
+      +(newFiles.length?'<label class="chk-row"><input type="checkbox" id="eimp-add" checked><span>Tambahkan '+newFiles.length+' aset yang belum ada ke Upload Log sebagai Accepted (tanggal tidak diketahui)</span></label>'
+        +'<div class="form-field" style="margin-top:12px"><label class="form-label">Jenis untuk aset baru</label><select class="form-select" id="eimp-type"><option value="auto">Otomatis ('+Object.keys(autoCnt).map(k=>esc(k)+' '+autoCnt[k]).join(', ')+')</option>'+assetTypes.map(t=>'<option value="'+esc(t)+'">'+esc(t)+'</option>').join('')+'</select></div>':'')
+      +'<div class="imp-list">'+fresh.slice(0,8).map(x=>'<div class="imp-row"><span>'+esc(x.fn||x.title)+'</span><b>'+fmtUsd(x.usd)+'</b></div>').join('')+(fresh.length>8?'<div class="imp-row"><span>dan '+(fresh.length-8)+' lainnya</span></div>':'')+'</div>';
+    if(fresh.length)go.classList.remove('hide');
+    else prev.innerHTML+='<div class="set-hint" style="margin-top:10px">Tidak ada penjualan baru untuk diimpor.</div>';
+    return;
+  }
+  const h=rows.findIndex(r=>r.length>=3&&/^(tanggal|date)$/i.test((r[0]||'').trim())&&r.some(c=>/unduhan|downloads/i.test(c))&&r.some(c=>/penghasilan|earnings/i.test(c)));
+  if(h>=0){
+    const iDl=rows[h].findIndex(c=>/total.*(unduhan|downloads)/i.test(c)),iUsd=rows[h].findIndex(c=>/total.*(penghasilan|earnings)/i.test(c));
+    const body=rows.slice(h+1);
+    const tot=body.find(r=>/^total/i.test((r[0]||'').trim()));
+    const days=body.filter(r=>/^\d{2}\/\d{2}\/\d{4}$/.test((r[0]||'').trim()));
+    const dm=days.length?days[0][0].trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/):null;
+    if(iDl>=0&&iUsd>=0&&dm){
+      const month=dm[3]+'-'+dm[2];
+      const num=v=>{const n=parseFloat(String(v||'').replace(/[^0-9.\-]/g,''));return Number.isFinite(n)?n:0;};
+      const dl=tot?Math.round(num(tot[iDl])):days.reduce((t,r)=>t+num(r[iDl]),0);
+      const usd=round2(tot?num(tot[iUsd]):days.reduce((t,r)=>t+num(r[iUsd]),0));
+      const old=earnRaw(month,'shutterstock');
+      EIMP={kind:'ss',month:month,usd:usd,dl:dl};
+      prev.innerHTML='<div class="imp-box"><b>Shutterstock · Penghasilan berdasarkan bulan</b><br>'+fmtMonth(month)+': '+dl+' unduhan, '+fmtUsd(usd)+'<br>Akan mengisi total bulanan Shutterstock.'
+        +((old&&old.usd!==undefined&&Math.abs(old.usd-usd)>0.004)?'<br><span style="color:var(--red)">Menimpa nilai sebelumnya ('+fmtUsd(old.usd)+').</span>':'')+'</div>'
+        +'<div class="set-hint">File ini hanya berisi ringkasan harian tanpa nama file, jadi tidak membuat catatan per aset.</div>';
+      go.classList.remove('hide');return;
+    }
+  }
+  prev.innerHTML='<div class="set-hint" style="color:var(--red)">Format CSV tidak dikenali. Yang didukung: Adobe Stock (Activity) dan Shutterstock ("Penghasilan berdasarkan bulan", bahasa Indonesia).</div>';
+}
+function applyEarnImport(){
+  if(!EIMP)return;
+  const e=EIMP;let msg='';
+  if(e.kind==='ss'){
+    if(!state.earn[e.month])state.earn[e.month]={};
+    state.earn[e.month].shutterstock={usd:e.usd,dl:e.dl};
+    state.earnMonth=e.month;
+    msg='Shutterstock '+fmtMonth(e.month)+' diimpor';
+  }else{
+    const addEl=document.getElementById('eimp-add'),tsel=document.getElementById('eimp-type');
+    const forced=(tsel&&tsel.value!=='auto'&&assetTypes.includes(tsel.value))?tsel.value:'';
+    let added=0;
+    if(addEl&&addEl.checked){
+      e.newFiles.forEach(x=>{addAssetToLog('adobe',x.fn,'',x.title,forced||x.auto);added++;});
+    }
+    e.items.forEach(x=>{
+      state.sales.push({id:newId(),platform:'adobe',kind:'m',month:x.month,date:x.date,asOf:'',key:'f:'+fileStem(x.fn),name:x.fn,title:x.title,fn:x.fn,type:forced||x.auto,lic:x.lic,size:x.size,dl:1,usd:x.usd,ref:x.ref,src:'adobe-csv'});
+    });
+    const ms=e.items.map(x=>x.month).sort();
+    if(ms.length)state.earnMonth=ms[ms.length-1];
+    msg=e.items.length+' penjualan Adobe diimpor'+(added?' dan '+added+' aset ditambah ke Upload Log':'');
+  }
+  closeEarnImport();commit();showToast(msg,'success');
+}
+
+// ---------- analisis ----------
+function assetTotals(scope){
+  const map=new Map();
+  state.sales.forEach(s=>{
+    if(s.kind==='m'&&scope==='month'&&s.month!==state.earnMonth)return;
+    if(s.kind==='life'&&scope==='month')return;
+    const a=linkedAsset(s);
+    const key=s.platform+'|'+(a?'f:'+fileStem(a.filename):(s.key||('t:'+normText(s.title||s.name))));
+    let r=map.get(key);
+    if(!r){r={key:key,platform:s.platform,asset:a,label:a?a.filename:(s.name||s.title),type:saleType(s,a),seri:seriOf(a?a.filename:(s.name||'')),mUsd:0,mDl:0,lUsd:0,lDl:0};map.set(key,r);}
+    if(s.kind==='m'){r.mUsd+=s.usd;r.mDl+=s.dl;}else{r.lUsd=Math.max(r.lUsd,s.usd);r.lDl=Math.max(r.lDl,s.dl);}
+  });
+  return Array.from(map.values()).map(r=>{r.usd=round2(Math.max(r.mUsd,r.lUsd));r.dl=Math.max(r.mDl,r.lDl);return r;}).filter(r=>r.usd>0||r.dl>0);
+}
+function aggBy(rows,keyFn,acc){
+  const m=new Map();
+  rows.forEach(r=>{
+    const k=keyFn(r);let g=m.get(k);
+    if(!g){g={name:k,usd:0,dl:0,n:0,soldAcc:0};m.set(k,g);}
+    g.usd+=r.usd;g.dl+=r.dl;g.n++;if(r.asset&&r.asset.status==='accepted')g.soldAcc++;
+  });
+  Object.keys(acc||{}).forEach(k=>{if(!m.has(k))m.set(k,{name:k,usd:0,dl:0,n:0,soldAcc:0});});
+  const arr=Array.from(m.values());
+  arr.forEach(g=>{g.usd=round2(g.usd);g.acc=acc?(acc[g.name]||0):0;});
+  return arr.sort((a,b)=>(b.usd-a.usd)||(b.acc-a.acc)||a.name.localeCompare(b.name));
+}
+function anRows(arr,showRate){
+  const max=arr.reduce((t,g)=>Math.max(t,g.usd),0);
+  return arr.map(g=>{
+    const pct=max>0?Math.round(g.usd/max*100):0;
+    const rate=(showRate&&g.acc>0)?Math.round(g.soldAcc/g.acc*100):null;
+    return '<div class="an-row"><div class="an-name">'+esc(g.name)+'</div><div class="an-val">'+fmtUsd(g.usd)+'</div><div class="an-bar"><i style="width:'+pct+'%"></i></div><div class="an-sub">'+g.dl+' unduhan · '+g.n+' aset terjual</div><div class="an-sub r">'+(rate!==null?'laku '+g.soldAcc+' dari '+g.acc+' Accepted ('+rate+'%)':(showRate&&g.acc===0?'':''))+'</div></div>';
+  }).join('');
+}
+function renderEarnAnalysis(){
+  const box=document.getElementById('earn-analysis');if(!box)return;
+  if(state.hideMoney){box.innerHTML='<div class="card an-hidden">Tersembunyi. Ketuk "Tampilkan" untuk melihat analisis.</div>';return;}
+  const rows=assetTotals(EASCOPE);
+  if(!rows.length){box.innerHTML='<div class="asset-empty">Belum ada penjualan per aset'+(EASCOPE==='month'?' di bulan ini':'')+' untuk dianalisis. Impor CSV Adobe atau tambahkan penjualan.</div>';return;}
+  const accT={},accS={},accP={};let accTotal=0;
+  PLATFORM_IDS.forEach(p=>(state.uploadLog[p]||[]).forEach(a=>{
+    if(a.status!=='accepted')return;
+    const t=a.type||'Other',s=seriOf(a.filename);
+    accT[t]=(accT[t]||0)+1;accS[s]=(accS[s]||0)+1;accP[p]=(accP[p]||0)+1;accTotal++;
+  }));
+  const totalUsd=round2(rows.reduce((t,r)=>t+r.usd,0)),totalDl=rows.reduce((t,r)=>t+r.dl,0);
+  const byT=aggBy(rows,r=>r.type,accT),byS=aggBy(rows,r=>r.seri,accS),byP=aggBy(rows,r=>platformName(r.platform),null);
+  const soldAcc=rows.filter(r=>r.asset&&r.asset.status==='accepted').length;
+  const top=rows.slice().sort((a,b)=>(b.usd-a.usd)||(b.dl-a.dl)).slice(0,10);
+  // ringkasan
+  const ins=[];
+  const nSales=state.sales.filter(s=>EASCOPE==='all'||(s.kind==='m'&&s.month===state.earnMonth)).length;
+  if(nSales<20)ins.push('Data masih sedikit ('+nSales+' catatan penjualan), anggap ini gambaran awal, bukan kesimpulan.');
+  if(byT[0]&&byT[0].usd>0)ins.push('Jenis paling menghasilkan: <b>'+esc(byT[0].name)+'</b> ('+fmtUsd(byT[0].usd)+' dari '+byT[0].n+' aset).');
+  const sTop=byS.find(g=>g.usd>0);
+  if(sTop&&byS.filter(g=>g.usd>0).length>1)ins.push('Seri paling menghasilkan: <b>'+esc(sTop.name)+'</b> ('+fmtUsd(sTop.usd)+').');
+  if(accTotal>0)ins.push(soldAcc+' dari '+accTotal+' aset Accepted ('+Math.round(soldAcc/accTotal*100)+'%) sudah tercatat laku.');
+  // Accepted lama belum laku
+  const soldSet=new Set(assetTotals('all').map(r=>r.asset).filter(Boolean));
+  const unsold=[];
+  PLATFORM_IDS.forEach(p=>(state.uploadLog[p]||[]).forEach(a=>{
+    if(a.status!=='accepted'||soldSet.has(a))return;
+    const k=toWIBKey(a.uploadedAt);if(!k||k===UNKNOWN_KEY)return;
+    const age=daysBetweenKeys(k,trackerKey());if(Number.isFinite(age)&&age>=30)unsold.push({a:a,p:p,age:age});
+  }));
+  unsold.sort((x,y)=>y.age-x.age);
+  const uT={};unsold.forEach(u=>{const t=u.a.type||'Other';uT[t]=(uT[t]||0)+1;});
+  const unsoldHtml=unsold.length?('<div class="an-card card"><div class="an-title">Accepted 30 hari lebih, belum laku</div><div class="an-sub" style="margin:0 0 8px">'+unsold.length+' aset. Hanya akurat kalau penjualan sudah dicatat lengkap.</div><div class="an-chips">'+Object.keys(uT).sort((a,b)=>uT[b]-uT[a]).map(t=>'<span class="type-tag">'+esc(t)+' '+uT[t]+'</span>').join('')+'</div><details><summary>Lihat daftar ('+Math.min(30,unsold.length)+' tertua)</summary>'+unsold.slice(0,30).map(u=>'<div class="imp-row"><span>'+esc(u.a.filename)+' · '+esc(platformName(u.p))+'</span><b>'+u.age+' hari</b></div>').join('')+'</details></div>'):'';
+  box.innerHTML='<div class="an-ring card"><div><div class="earn-hero-label">'+(EASCOPE==='month'?fmtMonth(state.earnMonth):'Semua waktu')+'</div><div class="an-big">'+fmtUsd(totalUsd)+'</div><div class="an-sub">'+totalDl+' unduhan · '+rows.length+' aset terjual</div></div><ul class="an-ins">'+ins.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>'
+    +'<div class="an-grid">'
+    +'<div class="an-card card"><div class="an-title">Aset terlaris</div>'+top.map((r,i)=>'<div class="imp-row"><span><b>'+(i+1)+'.</b> '+esc(r.label)+' <span class="type-tag">'+esc(r.type)+'</span></span><b>'+fmtUsd(r.usd)+'</b></div>').join('')+'</div>'
+    +'<div class="an-card card"><div class="an-title">Per jenis aset</div>'+anRows(byT,true)+'</div>'
+    +'<div class="an-card card"><div class="an-title">Per seri (huruf awalan)</div>'+anRows(byS.slice(0,12),true)+(byS.length>12?'<div class="an-sub">dan '+(byS.length-12)+' seri lain</div>':'')+'</div>'
+    +'<div class="an-card card"><div class="an-title">Per platform</div>'+anRows(byP,false)+'</div>'
+    +'</div>'+unsoldHtml;
+}
+
+// ---------- export CSV ----------
+function buildSalesCSV(){
+  const head='platform,catatan,bulan,tanggal,nama_file,judul,jenis_aset,seri,unduhan,usd,lisensi,sumber';
+  LINK_CACHE=null;
+  const lines=state.sales.slice().sort((a,b)=>((a.month||'')+(a.date||''))<((b.month||'')+(b.date||''))?-1:1).map(s=>{
+    const a=linkedAsset(s);
+    return [platformName(s.platform),s.kind==='m'?'bulanan':'seumur hidup',s.month||'',s.date||s.asOf||'',a?a.filename:(s.name||''),a?(a.title||''):(s.title||''),saleType(s,a),seriOf(a?a.filename:(s.name||'')),s.dl,s.usd.toFixed(2),s.lic||'',s.src||''].map(csvCell).join(',');
+  });
+  return [head].concat(lines).join('\n');
+}
+function exportSalesCSV(){
+  if(state.sales.length===0){alert('Belum ada penjualan per aset untuk di-export.');return;}
+  downloadBlob(buildSalesCSV(),'text/csv','earnings_penjualan_'+trackerKey()+'.csv');
+  showToast('Export '+state.sales.length+' catatan penjualan (CSV)','success');
+}
+function buildMonthlyCSV(){
+  const lines=['bulan,platform,usd,unduhan,sumber'];
+  allMonths().forEach(m=>PLATFORM_IDS.forEach(p=>{
+    const e=earnEff(m,p);if(e.usd===0&&e.dl===0)return;
+    lines.push([m,platformName(p),e.usd.toFixed(2),e.dl,(e.hasU?'diisi/diimpor':'dihitung dari aset')].map(csvCell).join(','));
+  }));
+  return lines.join('\n');
+}
+function exportEarnMonthlyCSV(){
+  const t=buildMonthlyCSV();
+  if(t.split('\n').length<2){alert('Belum ada total bulanan untuk di-export.');return;}
+  downloadBlob(t,'text/csv','earnings_bulanan_'+trackerKey()+'.csv');
+  showToast('Export total bulanan (CSV)','success');
+}
+
 function fmtMonth(m){const p=String(m).split('-');return (MON_FULL[+p[1]-1]||'?')+' '+p[0];}
 function fmtMonthShort(m){const p=String(m).split('-');return (MON_ID[+p[1]-1]||'?')+' '+String(p[0]).slice(2);}
 function shiftMonth(m,n){const p=String(m).split('-').map(Number);const d=new Date(Date.UTC(p[0],p[1]-1+n,1));return d.getUTCFullYear()+'-'+pad2(d.getUTCMonth()+1);}
@@ -2536,33 +2967,10 @@ function renderEarnTrend(){
   box.innerHTML='<div class="trend-bars">'+months.map((x,i)=>'<button class="trend-col'+(x===m?' on':'')+'" onclick="earnGo(\''+x+'\')"><div class="trend-val">'+(vals[i]>0?fmtUsd(vals[i]):'')+'</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:'+(vals[i]>0?Math.max(4,Math.round(vals[i]/max*100)):0)+'px"></div></div><div class="trend-lbl">'+fmtMonthShort(x)+'</div></button>').join('')+'</div>';
 }
 // aset di Upload Log yang cocok dengan catatan penjualan (nama file, atau judul/deskripsi)
-function linkedAsset(s){
-  const list=state.uploadLog[s.platform]||[];
-  const tryStem=n=>{if(!n)return null;const k=fileStem(n);return list.find(a=>fileStem(a.filename)===k)||null;};
-  let f=tryStem(s.fn)||tryStem(s.name);if(f)return f;
-  const nt=normText(s.title||s.name);
-  if(nt.length>=12){f=list.find(a=>{const t=normText(a.title);return t&&(t===nt||(nt.length>=30&&t.length>=30&&(t.includes(nt)||nt.includes(t))));});if(f)return f;}
-  return null;
-}
-function saleRow(s){
-  const a=linkedAsset(s);
-  const label=a?a.filename:(s.name||s.title);
-  const sub=a?(a.title||''):((s.title&&s.title!==label)?s.title:'');
-  const tag=a?'<span class="link-tag ok">di Upload Log</span>':'<span class="link-tag">belum di Upload Log</span>';
-  const when=s.kind==='m'?(s.date?fmtShortKey2(s.date):''):('per '+fmtShortKey2(s.asOf||''));
-  return '<div class="sale-row" onclick="openSaleModal(\''+s.id+'\')"><div class="sale-info"><div class="sale-name"><span class="plat-tag">'+esc(platformName(s.platform))+'</span>'+esc(label)+'</div>'+(sub?'<div class="sale-sub">'+esc(sub)+'</div>':'')+'<div class="sale-meta">'+tag+(when?' · '+esc(when):'')+'</div></div><div class="sale-nums"><div class="sale-usd">'+money(s.usd)+'</div><div class="sale-dl">'+nint(s.dl)+' unduhan</div></div></div>';
-}
-function renderSalesLists(){
-  const m=state.earnMonth;
-  document.getElementById('earn-sales-month').textContent=fmtMonth(m);
-  const mon=state.sales.filter(s=>s.kind==='m'&&s.month===m).sort((a,b)=>(b.usd-a.usd)||((a.date<b.date)?1:-1));
-  document.getElementById('earn-sales-list').innerHTML=mon.length?mon.map(saleRow).join(''):'<div class="asset-empty">Belum ada penjualan per aset di bulan ini. Pakai "Import CSV" atau "Tambah penjualan".</div>';
-  const life=state.sales.filter(s=>s.kind==='life').sort((a,b)=>b.usd-a.usd);
-  document.getElementById('earn-life-list').innerHTML=life.length?life.map(saleRow).join(''):'<div class="asset-empty">Belum ada. Dipakai untuk Shutterstock, yang menampilkan penjualan per aset secara "seumur hidup".</div>';
-}
 function renderEarnTab(){
   const page=document.getElementById('page-earnings');if(!page)return;
   if(!state.earnMonth)state.earnMonth=trackerKey().slice(0,7);
+  LINK_CACHE=null;
   const m=state.earnMonth,tot=monthTotal(m);
   document.getElementById('earn-month-label').textContent=fmtMonth(m);
   document.getElementById('earn-hero-month').textContent=fmtMonth(m);
@@ -2570,30 +2978,12 @@ function renderEarnTab(){
   document.getElementById('earn-hero-sub').textContent=nint(tot.dl)+' unduhan';
   document.getElementById('earn-since-value').textContent=money(totalSinceStart());
   document.getElementById('earn-eye').innerHTML=ic(state.hideMoney?'eye':'eye-off','sm')+'<span>'+(state.hideMoney?'Tampilkan':'Sembunyikan')+'</span>';
-  renderEarnPlatforms();renderEarnTrend();renderSalesLists();
+  renderEarnPlatforms();renderEarnTrend();renderEarnAnalysis();renderSalesLists();updateEarnSegs();
 }
 
 // ---------- tambah / ubah penjualan ----------
 const SALE={editing:null,kind:'m',pick:null,sugg:[]};
 let lastSalePlat='adobe';
-function openSaleModal(id){
-  let s=null;
-  if(id){
-    s=state.sales.find(x=>x.id===id);if(!s)return;
-    if(state.hideMoney){showToast('Tampilkan earnings dulu untuk mengubah catatan','info');return;}
-  }
-  SALE.editing=s?s.id:null;SALE.kind=s?s.kind:'m';SALE.pick=s?linkedAsset(s):null;
-  document.getElementById('sale-title').textContent=s?'Ubah penjualan':'Tambah penjualan';
-  document.getElementById('sl-platform').value=s?s.platform:lastSalePlat;
-  document.getElementById('sl-month').value=(s&&s.kind==='m')?s.month:state.earnMonth;
-  document.getElementById('sl-asset').value=s?(SALE.pick?SALE.pick.filename:(s.name||s.title)):'';
-  document.getElementById('sl-dl').value=s?s.dl:'';
-  document.getElementById('sl-usd').value=s?s.usd:'';
-  document.getElementById('sl-upl').value='';
-  document.getElementById('sl-del').classList.toggle('hide',!s);
-  refreshSaleForm();
-  document.getElementById('sale-modal').classList.add('show');
-}
 function closeSaleModal(){document.getElementById('sale-modal').classList.remove('show');}
 function setSaleKind(k){SALE.kind=k;refreshSaleForm();}
 function onSalePlatform(){SALE.pick=null;onSaleAsset();}
@@ -2613,24 +3003,6 @@ function resolveSaleAsset(plat,text){
   if(nt.length>=12){f=list.find(a=>{const t=normText(a.title);return t&&(t===nt||(nt.length>=30&&t.length>=30&&(t.includes(nt)||nt.includes(t))));});if(f)return f;}
   return null;
 }
-function onSaleAsset(){
-  const plat=document.getElementById('sl-platform').value;
-  const inp=document.getElementById('sl-asset');const q=inp.value.trim();
-  if(SALE.pick&&inp.value!==SALE.pick.filename)SALE.pick=null;
-  const sug=document.getElementById('sl-suggest');
-  SALE.sugg=[];
-  if(!SALE.pick&&q.length>=2){
-    const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
-    SALE.sugg=(state.uploadLog[plat]||[]).filter(a=>{const h=(a.filename+' '+(a.title||'')).toLowerCase();return toks.every(t=>h.includes(t));}).slice(0,6);
-  }
-  sug.innerHTML=SALE.sugg.map((a,i)=>'<button type="button" class="suggest-item" onclick="pickSaleAsset('+i+')"><b>'+esc(a.filename)+'</b><span>'+esc((a.title||'').slice(0,70))+'</span></button>').join('');
-  const found=SALE.pick||(q?resolveSaleAsset(plat,q):null);
-  const hint=document.getElementById('sl-linked');
-  const addRow=document.getElementById('sl-add-row');
-  if(found){hint.textContent='Tertaut ke Upload Log: '+found.filename+(found.title?' · '+found.title.slice(0,60):'');addRow.classList.add('hide');}
-  else if(q){hint.textContent='Belum ada di Upload Log.';addRow.classList.remove('hide');}
-  else{hint.textContent='';addRow.classList.add('hide');}
-}
 function pickSaleAsset(i){
   const a=SALE.sugg[i];if(!a)return;
   SALE.pick=a;document.getElementById('sl-asset').value=a.filename;
@@ -2641,33 +3013,6 @@ function addAssetToLog(plat,text,uplKey,title,type){
   const fn=isFile?text:text.slice(0,60),tt=isFile?(title||''):text;
   const a={filename:fn,title:tt,type:type||inferTypeFromAll(fn,tt,''),status:'accepted',reason:'',uploadedAt:uplKey?isoForKey(uplKey):UNKNOWN_ISO};
   state.uploadLog[plat].push(a);return a;
-}
-function saveSale(){
-  const plat=document.getElementById('sl-platform').value,kind=SALE.kind;
-  const month=document.getElementById('sl-month').value;
-  const text=document.getElementById('sl-asset').value.trim();
-  const dl=parseInt(document.getElementById('sl-dl').value,10)||0;
-  const usd=parseFloat(document.getElementById('sl-usd').value);
-  const upl=document.getElementById('sl-upl').value;
-  if(!text){showToast('Isi nama atau judul aset','info');return;}
-  if(!Number.isFinite(usd)||usd<0){showToast('Isi pendapatan (USD)','info');return;}
-  if(kind==='m'&&!/^\d{4}-\d{2}$/.test(month)){showToast('Pilih bulan','info');return;}
-  if(upl&&upl>trackerKey()){showToast('Tanggal unggah tidak boleh di masa depan','info');return;}
-  let a=resolveSaleAsset(plat,text),added=false;
-  if(!a&&document.getElementById('sl-add').checked){a=addAssetToLog(plat,text,upl);added=true;}
-  else if(a&&upl&&upl!==toWIBKey(a.uploadedAt)){a.uploadedAt=isoForKey(upl);}
-  const isFile=looksLikeFile(text);
-  const sale={id:SALE.editing||newId(),platform:plat,kind:kind,month:kind==='m'?month:'',date:'',asOf:kind==='life'?trackerKey():'',
-    key:a?'f:'+fileStem(a.filename):(isFile?'f:'+fileStem(text):'t:'+normText(text).slice(0,120)),
-    name:a?a.filename:(isFile?text:''),title:a?(a.title||''):(isFile?'':text),fn:a?a.filename:(isFile?text:''),
-    dl:dl,usd:round2(usd),ref:'',src:'manual'};
-  let idx=state.sales.findIndex(x=>x.id===sale.id);
-  if(idx<0)idx=state.sales.findIndex(x=>x.src==='manual'&&x.platform===plat&&x.kind===kind&&x.key===sale.key&&(kind==='life'||x.month===sale.month));
-  if(idx>=0){sale.id=state.sales[idx].id;state.sales[idx]=sale;}else state.sales.push(sale);
-  lastSalePlat=plat;
-  if(kind==='m')state.earnMonth=month;
-  closeSaleModal();commit();
-  showToast(added?'Penjualan disimpan dan aset ditambah ke Upload Log':'Penjualan disimpan','success');
 }
 function deleteSale(){
   const id=SALE.editing;if(!id)return;
@@ -2709,87 +3054,6 @@ async function onEarnFile(ev){
   ev.target.value='';
 }
 function wibDateKey(iso){const t=Date.parse(iso);if(!Number.isFinite(t))return '';return new Date(t+7*3600000).toISOString().slice(0,10);}
-function prepareEarnImport(text){
-  const rows=csvRows(text).filter(r=>r.length>1||(r[0]&&r[0].trim()));
-  const prev=document.getElementById('eimp-preview'),go=document.getElementById('eimp-go');
-  go.classList.add('hide');EIMP=null;
-  // --- Adobe Stock: Activity (satu baris per penjualan)
-  const ad=rows.filter(r=>r.length>=7&&/^\d{4}-\d{2}-\d{2}T/.test((r[0]||'').trim())&&/^\d{5,}$/.test((r[1]||'').trim())&&/\d/.test(r[4]||''));
-  if(ad.length){
-    const have=new Set(state.sales.map(s=>s.ref).filter(Boolean));
-    const list=state.uploadLog.adobe||[];
-    const items=ad.map(r=>{
-      const ts=r[0].trim(),id=r[1].trim(),usd=round2(parseFloat(String(r[4]).replace(/[^0-9.]/g,''))||0);
-      const date=wibDateKey(ts),fn=(r[6]||'').trim(),title=(r[2]||'').trim(),media=(r[5]||'').trim().toLowerCase();
-      const stem=fileStem(fn);
-      return {ref:'adobe:'+id+'|'+ts,date:date,month:date.slice(0,7),fn:fn,title:title,usd:usd,media:media,dup:have.has('adobe:'+id+'|'+ts),
-        inLog:!!(fn&&list.find(a=>fileStem(a.filename)===stem))};
-    }).filter(x=>x.date);
-    const fresh=items.filter(x=>!x.dup);
-    const byMonth={};fresh.forEach(x=>{byMonth[x.month]=round2((byMonth[x.month]||0)+x.usd);});
-    const newFiles=[];const seen=new Set();
-    fresh.filter(x=>!x.inLog&&x.fn).forEach(x=>{const k=fileStem(x.fn);if(!seen.has(k)){seen.add(k);newFiles.push(x);}});
-    EIMP={kind:'adobe',items:fresh,newFiles:newFiles};
-    prev.innerHTML='<div class="imp-box"><b>Adobe Stock · Activity</b><br>'+fresh.length+' penjualan baru ('+fmtUsd(round2(fresh.reduce((t,x)=>t+x.usd,0)))+')'
-      +(items.length-fresh.length?' · '+(items.length-fresh.length)+' sudah pernah diimpor (dilewati)':'')
-      +'<br>'+Object.keys(byMonth).sort().map(m=>fmtMonth(m)+': '+fmtUsd(byMonth[m])).join(' · ')
-      +'<br>'+(fresh.filter(x=>x.inLog).length)+' cocok dengan aset di Upload Log, '+fresh.filter(x=>!x.inLog).length+' belum ada.</div>'
-      +(newFiles.length?'<label class="chk-row"><input type="checkbox" id="eimp-add" checked><span>Tambahkan '+newFiles.length+' aset yang belum ada ke Upload Log sebagai Accepted (tanggal tidak diketahui)</span></label>':'')
-      +'<div class="imp-list">'+fresh.slice(0,8).map(x=>'<div class="imp-row"><span>'+esc(x.fn||x.title)+'</span><b>'+fmtUsd(x.usd)+'</b></div>').join('')+(fresh.length>8?'<div class="imp-row"><span>dan '+(fresh.length-8)+' lainnya</span></div>':'')+'</div>';
-    if(fresh.length)go.classList.remove('hide');
-    else prev.innerHTML+='<div class="set-hint" style="margin-top:10px">Tidak ada penjualan baru untuk diimpor.</div>';
-    return;
-  }
-  // --- Shutterstock: Penghasilan berdasarkan bulan
-  const h=rows.findIndex(r=>r.length>=3&&/^(tanggal|date)$/i.test((r[0]||'').trim())&&r.some(c=>/unduhan|downloads/i.test(c))&&r.some(c=>/penghasilan|earnings/i.test(c)));
-  if(h>=0){
-    const iDl=rows[h].findIndex(c=>/total.*(unduhan|downloads)/i.test(c)),iUsd=rows[h].findIndex(c=>/total.*(penghasilan|earnings)/i.test(c));
-    const body=rows.slice(h+1);
-    const tot=body.find(r=>/^total/i.test((r[0]||'').trim()));
-    const days=body.filter(r=>/^\d{2}\/\d{2}\/\d{4}$/.test((r[0]||'').trim()));
-    const dm=days.length?days[0][0].trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/):null;
-    if(iDl>=0&&iUsd>=0&&dm){
-      const month=dm[3]+'-'+dm[2];
-      const num=v=>{const n=parseFloat(String(v||'').replace(/[^0-9.\-]/g,''));return Number.isFinite(n)?n:0;};
-      const dl=tot?Math.round(num(tot[iDl])):days.reduce((t,r)=>t+num(r[iDl]),0);
-      const usd=round2(tot?num(tot[iUsd]):days.reduce((t,r)=>t+num(r[iUsd]),0));
-      const old=earnRaw(month,'shutterstock');
-      EIMP={kind:'ss',month:month,usd:usd,dl:dl};
-      prev.innerHTML='<div class="imp-box"><b>Shutterstock · Penghasilan berdasarkan bulan</b><br>'+fmtMonth(month)+': '+dl+' unduhan, '+fmtUsd(usd)+'<br>Akan mengisi total bulanan Shutterstock.'
-        +((old&&old.usd!==undefined&&Math.abs(old.usd-usd)>0.004)?'<br><span style="color:var(--red)">Menimpa nilai sebelumnya ('+fmtUsd(old.usd)+').</span>':'')+'</div>'
-        +'<div class="set-hint">File ini hanya berisi ringkasan harian tanpa nama file, jadi tidak membuat catatan per aset.</div>';
-      go.classList.remove('hide');return;
-    }
-  }
-  prev.innerHTML='<div class="set-hint" style="color:var(--red)">Format CSV tidak dikenali. Yang didukung: Adobe Stock (Activity) dan Shutterstock ("Penghasilan berdasarkan bulan", bahasa Indonesia).</div>';
-}
-function applyEarnImport(){
-  if(!EIMP)return;
-  const e=EIMP;let msg='';
-  if(e.kind==='ss'){
-    if(!state.earn[e.month])state.earn[e.month]={};
-    state.earn[e.month].shutterstock={usd:e.usd,dl:e.dl};
-    state.earnMonth=e.month;
-    msg='Shutterstock '+fmtMonth(e.month)+' diimpor';
-  }else{
-    const addEl=document.getElementById('eimp-add');
-    let added=0;
-    if(addEl&&addEl.checked){
-      e.newFiles.forEach(x=>{
-        const t=x.media.indexOf('video')>=0?'Video':'';
-        addAssetToLog('adobe',x.fn,'',x.title,t||(inferTypeFromAll(x.fn,x.title,'')==='Other'?'Vector':''));added++;
-      });
-    }
-    e.items.forEach(x=>{
-      const stem=fileStem(x.fn);
-      state.sales.push({id:newId(),platform:'adobe',kind:'m',month:x.month,date:x.date,asOf:'',key:'f:'+stem,name:x.fn,title:x.title,fn:x.fn,dl:1,usd:x.usd,ref:x.ref,src:'adobe-csv'});
-    });
-    const ms=e.items.map(x=>x.month).sort();
-    if(ms.length)state.earnMonth=ms[ms.length-1];
-    msg=e.items.length+' penjualan Adobe diimpor'+(added?' dan '+added+' aset ditambah ke Upload Log':'');
-  }
-  closeEarnImport();commit();showToast(msg,'success');
-}
 
 
 // ===================== RIWAYAT CATATAN =====================
